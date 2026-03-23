@@ -1,0 +1,16 @@
+model: lightgbm
+objective: regression
+metric: mae
+n_estimators: 500
+learning_rate: 0.05
+num_leaves: 31
+subsample: 0.8
+colsample_bytree: 0.8
+
+features:
+  lags: [1, 7, 14, 28]
+  rolling_windows: [7, 14, 28]
+  calendar: true
+  weather: false  # Enable when weather data is available
+
+horizon_days: 3

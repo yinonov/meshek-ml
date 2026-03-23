@@ -1,0 +1,6 @@
+model: prophet
+seasonality_mode: multiplicative
+weekly_seasonality: true
+yearly_seasonality: true
+changepoint_prior_scale: 0.05
+horizon_days: 7

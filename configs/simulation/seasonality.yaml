@@ -1,0 +1,48 @@
+# Israeli holiday calendar (approximate Gregorian dates)
+holidays:
+  - name: Pesach
+    month: 3
+    day: 25
+    duration_days: 7
+    demand_multiplier: 1.8
+  - name: Yom_Haatzmaut
+    month: 5
+    day: 14
+    duration_days: 1
+    demand_multiplier: 1.6
+  - name: Shavuot
+    month: 6
+    day: 5
+    duration_days: 1
+    demand_multiplier: 1.5
+  - name: Rosh_Hashana
+    month: 9
+    day: 16
+    duration_days: 2
+    demand_multiplier: 2.0
+  - name: Yom_Kippur
+    month: 9
+    day: 25
+    duration_days: 1
+    demand_multiplier: 1.5
+  - name: Sukkot
+    month: 9
+    day: 30
+    duration_days: 7
+    demand_multiplier: 1.7
+  - name: Hanukkah
+    month: 12
+    day: 15
+    duration_days: 8
+    demand_multiplier: 1.3
+
+# Product-specific seasonal amplitudes
+product_seasonality:
+  tomatoes: { amplitude: 0.3, peak_month: 7 }
+  strawberries: { amplitude: 0.6, peak_month: 5 }
+  lettuce: { amplitude: 0.25, peak_month: 6 }
+  apples: { amplitude: 0.2, peak_month: 10 }
+  oranges: { amplitude: 0.4, peak_month: 1 }
+  potatoes: { amplitude: 0.15, peak_month: null }
+  bananas: { amplitude: 0.15, peak_month: null }
+  dragon_fruit: { amplitude: 0.1, peak_month: 8 }

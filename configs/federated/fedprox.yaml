@@ -1,0 +1,10 @@
+strategy: fedprox
+n_rounds: 50
+fraction_fit: 1.0
+fraction_evaluate: 1.0
+min_fit_clients: 2
+min_evaluate_clients: 2
+local_epochs: 5
+local_batch_size: 32
+learning_rate: 0.01
+mu: 0.1  # Proximal term strength

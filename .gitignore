@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Hydra outputs
+outputs/
+multirun/
+
+# Data (keep structure, ignore contents)
+data/raw/*
+data/processed/*
+data/synthetic/*
+!data/**/.gitkeep
+
+# Models
+models/*
+!models/.gitkeep
+
+# Reports
+reports/figures/*
+!reports/figures/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_metadata
+
+# ML artifacts
+wandb/
+mlruns/
+*.pt
+*.pth
+*.onnx
+*.pkl
+*.joblib
+
+# OS
+.DS_Store
+Thumbs.db

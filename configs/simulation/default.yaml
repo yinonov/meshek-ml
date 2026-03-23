@@ -1,0 +1,18 @@
+seed: 42
+n_merchants: 10
+n_products: 8
+start_date: "2023-01-01"
+end_date: "2024-12-31"
+output_dir: "data/synthetic"
+
+demand:
+  base_distribution: "negative_binomial"
+  dispersion: 3.0
+  weekly_pattern:
+    monday: 0.85
+    tuesday: 0.90
+    wednesday: 0.95
+    thursday: 1.00
+    friday: 1.15
+    saturday: 1.30
+    sunday: 0.70

@@ -1,0 +1,11 @@
+method: newsvendor
+
+costs:
+  selling_price: 7.0
+  purchase_cost: 5.0
+  holding_cost: 0.1
+  salvage_value: 0.0
+
+# Asymmetric cost weights
+underage_cost: 2.0   # Lost margin per unit
+overage_cost: 5.0    # Full purchase cost per wasted unit

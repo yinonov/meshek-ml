@@ -1,0 +1,24 @@
+archetypes:
+  small_urban_boutique:
+    location_type: urban
+    demand_scale: 0.7
+    n_products_range: [30, 50]
+    daily_customers_range: [50, 100]
+
+  medium_suburban:
+    location_type: suburban
+    demand_scale: 1.5
+    n_products_range: [60, 100]
+    daily_customers_range: [100, 200]
+
+  market_stall:
+    location_type: rural
+    demand_scale: 0.5
+    n_products_range: [15, 30]
+    daily_customers_range: [30, 80]
+
+  corner_shop:
+    location_type: urban
+    demand_scale: 0.8
+    n_products_range: [20, 40]
+    daily_customers_range: [40, 90]

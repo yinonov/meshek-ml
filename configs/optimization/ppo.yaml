@@ -1,0 +1,25 @@
+method: ppo
+
+env:
+  max_shelf_life: 7
+  max_order: 50
+  demand_mean: 20.0
+  demand_dispersion: 3.0
+  episode_length: 90
+
+training:
+  total_timesteps: 100000
+  learning_rate: 0.0003
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+
+costs:
+  selling_price: 7.0
+  purchase_cost: 5.0
+  holding_cost: 0.1
+  waste_penalty: 5.0
+  stockout_penalty: 3.0
