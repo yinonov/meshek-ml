@@ -50,11 +50,24 @@ def compute_all_metrics(
     actual: np.ndarray,
     predicted: np.ndarray,
     quantile: float = 0.5,
+    track: bool = False,
 ) -> dict[str, float]:
-    """Compute all forecasting metrics at once."""
-    return {
+    """Compute all forecasting metrics at once.
+
+    Args:
+        actual: Actual demand values.
+        predicted: Predicted demand values.
+        quantile: Target quantile for pinball loss.
+        track: If True, log metrics via Trackio (requires an active run).
+    """
+    metrics = {
         "mae": mae(actual, predicted),
         "rmse": rmse(actual, predicted),
         "wmape": wmape(actual, predicted),
         "pinball_loss": pinball_loss(actual, predicted, quantile),
     }
+    if track:
+        from meshek_ml.common.tracking import tracker
+
+        tracker.log(metrics)
+    return metrics

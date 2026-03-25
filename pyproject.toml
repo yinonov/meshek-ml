@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Federated inventory optimization for perishable goods at small greengrocers"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 dependencies = [
     "numpy>=1.24",
@@ -40,6 +40,9 @@ federated = [
     "flwr>=1.7",
     "torch>=2.1",
 ]
+tracking = [
+    "trackio>=0.3",
+]
 demo = [
     "streamlit>=1.30",
 ]
@@ -52,7 +55,7 @@ dev = [
     "nbstripout>=0.6",
 ]
 all = [
-    "meshek-ml[simulation,forecasting,optimization,federated,demo,dev]",
+    "meshek-ml[simulation,forecasting,optimization,federated,tracking,demo,dev]",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -67,7 +70,7 @@ markers = [
 ]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 100
 src = ["src"]
 

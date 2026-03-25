@@ -1,4 +1,4 @@
-.PHONY: install install-all lint format test test-all sim forecast optimize federate demo clean
+.PHONY: install install-all lint format test test-all sim forecast optimize federate demo clean publish-model publish-data tracking-dashboard
 
 install:
 	pip install -e ".[dev,simulation]"
@@ -38,3 +38,16 @@ demo:
 clean:
 	rm -rf outputs/ multirun/ .pytest_cache/
 	find . -type d -name __pycache__ -exec rm -rf {} +
+
+# ── HF Hub publishing ──────────────────────────────────────────────
+publish-data:
+	hf upload meshek-ml/perishable-demand data/synthetic/ --repo-type dataset
+
+publish-model:
+	@echo "Usage: make publish-model MODEL=models/ppo_inventory.zip"
+	@test -n "$(MODEL)" || (echo "ERROR: set MODEL=path/to/model" && exit 1)
+	hf upload meshek-ml/inventory-models $(MODEL)
+
+# ── Experiment tracking ────────────────────────────────────────────
+tracking-dashboard:
+	trackio show

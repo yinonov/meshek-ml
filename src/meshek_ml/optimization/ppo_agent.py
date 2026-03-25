@@ -15,6 +15,8 @@ def train_ppo(
     learning_rate: float = 3e-4,
     n_steps: int = 2048,
     save_path: str | Path | None = None,
+    track: bool = False,
+    track_project: str = "optimization",
 ):
     """Train a PPO agent on the inventory environment.
 
@@ -24,11 +26,26 @@ def train_ppo(
         learning_rate: PPO learning rate.
         n_steps: Steps per rollout buffer collection.
         save_path: Path to save the trained model.
+        track: Whether to log metrics via Trackio.
+        track_project: Trackio project name.
 
     Returns:
         Trained PPO model.
     """
     from stable_baselines3 import PPO
+
+    if track:
+        from meshek_ml.common.tracking import tracker
+
+        tracker.init(
+            project=track_project,
+            config={
+                "algorithm": "PPO",
+                "total_timesteps": total_timesteps,
+                "learning_rate": learning_rate,
+                "n_steps": n_steps,
+            },
+        )
 
     model = PPO(
         "MlpPolicy",
@@ -43,6 +60,9 @@ def train_ppo(
         save_path = Path(save_path)
         save_path.parent.mkdir(parents=True, exist_ok=True)
         model.save(str(save_path))
+
+    if track:
+        tracker.finish()
 
     return model
 
