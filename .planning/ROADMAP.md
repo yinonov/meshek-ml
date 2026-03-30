@@ -25,7 +25,10 @@ This milestone turns the existing research codebase into a reproducible Google C
   1. An APPROACH.md document exists citing each of the 8 academic papers and mapping them to method decisions (LightGBM, PPO, newsvendor, two-stage architecture, deferred items).
   2. Team member can run the notebook from a fresh Colab runtime and complete dependency installation without manual repo surgery.
   3. Team member can mount or otherwise access Google Drive from the notebook.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Write APPROACH.md with academic paper citations and method rationale
+- [ ] 01-02-PLAN.md — Update Colab notebook with bootstrap cells for dependencies and Drive access
 **UI hint**: yes
 
 ### Phase 2: Forecasting Pipeline
@@ -70,7 +73,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Approach & Colab Bootstrap | 0/TBD | Not started | - |
+| 1. Approach & Colab Bootstrap | 0/2 | Not started | - |
 | 2. Forecasting Pipeline | 0/TBD | Not started | - |
 | 3. Optimization Baseline | 0/TBD | Not started | - |
 | 4. Integration & Documentation | 0/TBD | Not started | - |
