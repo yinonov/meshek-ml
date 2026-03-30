@@ -2,7 +2,7 @@
 
 ## Overview
 
-This brownfield milestone turns the existing research codebase into a practical Google Colab-first forecasting workflow. The roadmap starts by making fresh-session notebook setup reliable, then establishes a controllable synthetic baseline, hardens one strict shared data contract for synthetic and real daily sales inputs, and finishes with a single LightGBM training and evaluation path that the team can run end to end.
+This milestone turns the existing research codebase into a reproducible Google Colab pipeline grounded in academic evidence. It starts by documenting ML method choices with paper citations, then builds a LightGBM forecasting pipeline on top of existing utilities, wires the already-functional PPO and newsvendor optimization into the notebook, and finishes by connecting forecast output to optimization input in one end-to-end flow.
 
 ## Phases
 
@@ -10,57 +10,56 @@ This brownfield milestone turns the existing research codebase into a practical 
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Colab Bootstrap** - Make the forecasting workflow start cleanly in a fresh Colab session with storage access.
-- [ ] **Phase 2: Controlled Synthetic Baseline** - Give the notebook one control surface and a reproducible synthetic data run path.
-- [ ] **Phase 3: Shared Data Contract** - Normalize synthetic and strict-schema real data into one canonical forecasting table with fail-fast validation.
-- [ ] **Phase 4: LightGBM Forecast Training** - Train and review one time-aware LightGBM forecast from the shared pipeline inside Colab.
+- [ ] **Phase 1: Approach & Colab Bootstrap** - Document ML approach decisions from academic evidence and set up the Colab environment.
+- [ ] **Phase 2: Forecasting Pipeline** - Implement pipeline.py orchestrator with strict schema validation and wire into Colab.
+- [ ] **Phase 3: Optimization Baseline** - Wire existing PPO and newsvendor into the notebook with benchmarking.
+- [ ] **Phase 4: Integration & Documentation** - Connect forecast to optimization and document the full pipeline.
 
 ## Phase Details
 
-### Phase 1: Colab Bootstrap
-**Goal**: Team members can open a fresh Google Colab runtime, install the required forecasting dependencies, and access Drive-backed inputs and outputs.
+### Phase 1: Approach & Colab Bootstrap
+**Goal**: Document which ML methods were chosen and why (citing 8 academic papers), and set up a fresh Colab environment with dependencies and Drive access.
 **Depends on**: Nothing (first phase)
-**Requirements**: SETUP-01, SETUP-02
+**Requirements**: APPR-01, APPR-02, SETUP-01, SETUP-02
 **Success Criteria** (what must be TRUE):
-  1. Team member can run the notebook from a fresh Colab runtime and complete dependency installation without manual repo surgery.
-  2. Team member can mount or otherwise access Google Drive from the notebook to read real-data inputs.
-  3. Team member can write workflow outputs from the notebook to a Colab-accessible durable location.
+  1. An APPROACH.md document exists citing each of the 8 academic papers and mapping them to method decisions (LightGBM, PPO, newsvendor, two-stage architecture, deferred items).
+  2. Team member can run the notebook from a fresh Colab runtime and complete dependency installation without manual repo surgery.
+  3. Team member can mount or otherwise access Google Drive from the notebook.
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 2: Controlled Synthetic Baseline
-**Goal**: Team members can drive the notebook from one parameter cell and generate reproducible synthetic daily sales-style data for the forecasting workflow.
+### Phase 2: Forecasting Pipeline
+**Goal**: Implement the missing `pipeline.py` orchestrator that chains existing feature engineering, LightGBM training, and evaluation utilities into one callable pipeline, with strict schema validation and parameter controls.
 **Depends on**: Phase 1
-**Requirements**: SETUP-03, DATA-01
+**Requirements**: SETUP-03, FORE-01, FORE-02, FORE-03, FORE-04, FORE-05
 **Success Criteria** (what must be TRUE):
-  1. Team member can set source choice, input and output paths, date controls, and seed settings from one notebook parameter cell.
-  2. Team member can generate a synthetic daily sales-style dataset entirely inside Colab without preparing external files.
-  3. Re-running the synthetic workflow with the same control values produces the same staged synthetic dataset behavior.
+  1. `pipeline.py` orchestrates: load → validate schema → feature engineer → time-based split → train LightGBM → evaluate.
+  2. One parameter cell in the notebook controls source choice, input/output paths, date range, and seed.
+  3. Notebook outputs MAE, RMSE, WMAPE, and pinball loss after training.
+  4. Real data with wrong schema triggers a clear fail-fast error before training starts.
+  5. Synthetic and real data flow through the same pipeline code path after schema validation.
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 3: Shared Data Contract
-**Goal**: Synthetic and real daily sales data flow through one package-first preparation path that enforces the strict v1 schema and exposes a pre-training audit.
+### Phase 3: Optimization Baseline
+**Goal**: Wire the already-functional PPO agent and newsvendor baseline into the Colab notebook with side-by-side benchmarking metrics.
 **Depends on**: Phase 2
-**Requirements**: DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, FORE-01
+**Requirements**: OPT-01, OPT-02, OPT-03
 **Success Criteria** (what must be TRUE):
-  1. User can load a real dataset only when it provides `date`, `merchant_id`, `product`, and `quantity` in a usable training form.
-  2. Workflow stops before training with clear messages when required columns are missing, malformed, or otherwise invalid.
-  3. Workflow shows a schema audit summary before training with row counts, date span, null checks, and merchant and product cardinality.
-  4. Synthetic and real sources are normalized into one canonical forecasting table and proceed through the same package-level preparation path.
-  5. Team members can find the strict real-data schema rules and assumptions directly in notebook or repository guidance.
+  1. Notebook trains a PPO agent on the PerishableInventoryEnv.
+  2. Notebook computes newsvendor baseline orders using the critical fractile formula.
+  3. Notebook displays a comparison table: fill_rate, waste_rate, stockout_frequency for PPO vs newsvendor.
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 4: LightGBM Forecast Training
-**Goal**: Team members can train one LightGBM forecasting model end to end in Colab using the shared pipeline and review time-aware validation metrics in notebook output.
+### Phase 4: Integration & Documentation
+**Goal**: Connect LightGBM forecast output as demand input to the optimization layer, and document the full two-stage pipeline with academic justification for team use.
 **Depends on**: Phase 3
-**Requirements**: FORE-02, FORE-03, FORE-04
+**Requirements**: Cross-cutting integration
 **Success Criteria** (what must be TRUE):
-  1. User can run one shared forecasting pipeline from the notebook through feature generation, split, training, and evaluation.
-  2. Workflow uses a time-based train and validation split rather than a random split.
-  3. User can train one LightGBM model end to end on the staged forecasting dataset from Colab.
-  4. Notebook output reports evaluation metrics clearly enough for team review of model behavior.
+  1. Forecast predictions from LightGBM feed into newsvendor/PPO optimization decisions in one notebook flow.
+  2. Team member can run the complete pipeline (forecast → optimize) end-to-end from a fresh Colab session.
+  3. Notebook or repository documentation explains the two-stage architecture and why each method was chosen, citing the papers.
 **Plans**: TBD
 **UI hint**: yes
 
@@ -71,7 +70,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Colab Bootstrap | 0/TBD | Not started | - |
-| 2. Controlled Synthetic Baseline | 0/TBD | Not started | - |
-| 3. Shared Data Contract | 0/TBD | Not started | - |
-| 4. LightGBM Forecast Training | 0/TBD | Not started | - |
+| 1. Approach & Colab Bootstrap | 0/TBD | Not started | - |
+| 2. Forecasting Pipeline | 0/TBD | Not started | - |
+| 3. Optimization Baseline | 0/TBD | Not started | - |
+| 4. Integration & Documentation | 0/TBD | Not started | - |

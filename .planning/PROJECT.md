@@ -2,62 +2,77 @@
 
 ## What This Is
 
-meshek-ml is a research codebase for forecasting demand and optimizing inventory for small produce merchants using synthetic and, increasingly, real sales data. The next product step is a team-usable Google Colab workflow that can train a LightGBM forecasting model end to end on synthetic data first and then on a strict-schema real daily sales table.
+meshek-ml is a research codebase for forecasting demand and optimizing inventory for small produce merchants (Israeli greengrocers), combining LightGBM demand forecasting with PPO-based inventory optimization. The project validates its ML method choices against academic literature on perishable goods management and trains entirely on synthetic data first before real sales data.
 
 ## Core Value
 
-Make forecasting training reproducible and easy to run in Colab so the team can move from local research code to repeatable model experiments on both synthetic and real data.
+Deliver one reproducible Colab workflow that trains a LightGBM forecast and benchmarks a newsvendor/PPO optimization — grounded in academic evidence for each method choice.
 
 ## Requirements
 
 ### Validated
 
-- ✓ Generate synthetic merchant-product demand datasets with seasonality and spoilage-aware patterns — existing simulation layer in `src/meshek_ml/simulation/`
-- ✓ Persist and reload experiment datasets as parquet files — existing IO utilities in `src/meshek_ml/common/io.py`
-- ✓ Build forecasting features from merchant/product time series data — existing feature engineering in `src/meshek_ml/forecasting/features.py`
-- ✓ Evaluate forecasting outputs with project metrics utilities — existing evaluation helpers in `src/meshek_ml/forecasting/evaluation.py`
-- ✓ Partition merchant-level datasets for federated experiments — existing data partitioning in `src/meshek_ml/federated/partitioning.py`
+- ✓ Generate synthetic merchant-product demand datasets with seasonality and spoilage-aware patterns — `src/meshek_ml/simulation/`
+- ✓ Persist and reload experiment datasets as parquet files — `src/meshek_ml/common/io.py`
+- ✓ Build forecasting features from merchant/product time series data — `src/meshek_ml/forecasting/features.py`
+- ✓ Evaluate forecasting outputs with project metrics utilities — `src/meshek_ml/forecasting/evaluation.py`
+- ✓ Train PPO agent on perishable inventory Gymnasium environment — `src/meshek_ml/optimization/ppo_agent.py`
+- ✓ Compute newsvendor optimal order quantities — `src/meshek_ml/optimization/newsvendor.py`
+- ✓ Partition merchant-level datasets for federated experiments — `src/meshek_ml/federated/partitioning.py`
 
 ### Active
 
-- [ ] Run a fresh Colab notebook setup successfully for the forecasting workflow
+- [ ] Document ML approach decisions citing academic papers that support each method choice
+- [ ] Run a fresh Colab notebook setup successfully for the full pipeline workflow
 - [ ] Generate synthetic training data inside Colab and train one LightGBM forecasting model end to end
 - [ ] Load real daily sales data with a strict required schema: `date`, `merchant_id`, `product`, `quantity`
 - [ ] Reuse the same forecasting path for synthetic and real data with minimal notebook branching
 - [ ] Report evaluation metrics clearly inside the notebook output for team review
-- [ ] Document the required real-data schema and assumptions so the pipeline fails fast when inputs do not match
+- [ ] Train a PPO agent and run a newsvendor baseline from the Colab notebook
+- [ ] Benchmark PPO vs newsvendor with fill rate, waste rate, and stockout metrics
+- [ ] Connect forecast output to optimization input in one notebook flow
 
 ### Out of Scope
 
-- Full federated learning training in Colab — not needed for the first forecasting training release
-- PPO or inventory optimization training in Colab — separate workflow with different runtime and success criteria
-- Flexible schema mapping for arbitrary source columns — deferred until the strict-schema pipeline is stable
-- Transaction-level aggregation logic — deferred because v1 assumes a daily sales table is already prepared
+- Dynamic pricing as action variable — all papers confirm coupling, but increases complexity beyond v1; deferred to v2 with price recorded in schema for forward compatibility
+- E2E forecast-optimize with embedded newsvendor structure — Paper 5 (Liao et al.) shows E2E-PIL outperforms two-stage, but two-stage is simpler to debug and matches current codebase separation
+- Dual-agent architecture for pricing + inventory — Paper 3 (Zheng et al.) validates this, deferred until pricing enters scope
+- Federated learning training — separate milestone after single-merchant pipeline is stable
+- Real-time sensor data integration — MARIOD's IoT scope is irrelevant for small merchants
+- Multi-echelon supply chain — single-store focus for boutique greengrocers
+- Flexible schema mapping for arbitrary source columns — strict schema first
+- Transaction-level aggregation — v1 assumes daily sales table is already prepared
 
 ## Context
 
-- The repository is a brownfield Python ML workbench with implemented simulation, forecasting feature utilities, optimization components, and federated partitioning, but several top-level runnable pipelines are still placeholders.
-- `scripts/run_forecast.py` and `src/meshek_ml/forecasting/pipeline.py` are not implemented yet, so there is no current end-to-end forecasting training command.
-- There is an existing Colab-oriented notebook at `notebooks/colab_quickstart.ipynb`, but it does not currently provide the target forecasting training workflow.
-- `data/raw/` and `data/processed/` do not yet contain a staged real dataset; real-data support will depend on loading a strict-schema daily sales table from Drive or another Colab-accessible source.
-- The primary audience for this next stage is the internal team, not external users.
+- The repository is a brownfield Python ML workbench with functional simulation, forecasting feature utilities, optimization components (PPO + newsvendor), and federated partitioning.
+- `src/meshek_ml/forecasting/pipeline.py` is a stub — the main implementation gap for forecasting.
+- `scripts/run_forecast.py` and `scripts/run_optimization.py` are stubs.
+- Existing Colab notebook (`notebooks/colab_quickstart.ipynb`) demonstrates simulation → PPO training → newsvendor benchmarking but needs restructuring for the evidence-based pipeline.
+- 8 academic papers in `academic/` inform method choices across forecasting, optimization, and federated learning.
+- The primary audience is the internal team and the ML course professor.
 
 ## Constraints
 
 - **Execution environment**: Google Colab first — the training path must work in a fresh hosted notebook session
-- **Model scope**: LightGBM first — keep the first supported training path narrow enough to finish end to end
-- **Data contract**: Strict schema — fail fast unless real data exposes `date`, `merchant_id`, `product`, and `quantity`
-- **Workflow shape**: Synthetic first, then real data — the synthetic path should prove the pipeline before real-data debugging starts
-- **Codebase state**: Brownfield repo with partial orchestration — new work should reuse existing forecasting utilities instead of inventing a second path
+- **Forecasting model**: LightGBM first — M5 competition winner, confirmed by academic evidence
+- **Optimization model**: PPO + newsvendor baseline — validated by Boute et al. 2022 roadmap and multiple papers
+- **Architecture**: Two-stage (forecast → optimize) — simpler to debug, matches existing code separation; E2E deferred to v2
+- **Data contract**: Strict schema — fail fast unless real data exposes `date`, `merchant_id`, `product`, `quantity`
+- **Workflow shape**: Synthetic first, then real data — simulation as training ground, confirmed by all papers
+- **Academic grounding**: Every method choice must cite supporting literature
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Start with forecasting in Colab, not optimization or federated training | Forecasting is the immediate goal and has the clearest path from existing code to usable training | — Pending |
-| Support LightGBM as the first model path | It matches the existing forecasting direction and keeps the first implementation narrow | — Pending |
-| Require a strict real-data schema | The team needs a reliable v1 path before adding schema-mapping flexibility | — Pending |
-| Make synthetic and real data share one training path | Avoid duplicated notebook logic and keep evaluation comparable across sources | — Pending |
+| LightGBM for demand forecasting | M5 competition top-5 all used LightGBM; Paper 4 (Lee & Wong) confirms tree models outperform TS baselines; MARIOD's TFT needs 8x A100s | — Pending |
+| Two-stage pipeline (forecast → optimize), not E2E | Paper 5 (Liao et al.) shows E2E-PIL is better, but two-stage is simpler to debug and matches codebase separation; E2E deferred to v2 | — Pending |
+| PPO for inventory optimization | Boute et al. 2022 roadmap; Nomura et al. 2025 <10% gap vs exact DP; MARIOD uses hierarchical PPO variant | — Pending |
+| Newsvendor as analytical baseline | All 8 papers reference it; Paper 5 embeds it as structural prior; natural bridge between forecast and order decision | — Pending |
+| Dynamic pricing deferred, price recorded in schema | Every paper couples pricing with inventory; Zheng et al. prove joint profit not jointly concave; too complex for v1 | — Pending |
+| Federated learning is a separate milestone | FL for perishable inventory across heterogeneous small merchants is the novel contribution; needs stable single-merchant pipeline first | — Pending |
+| Simulation is the training ground | Original brief + MARIOD confirm; custom numpy/pandas approach appropriate for fixed-step daily simulation | — Pending |
 
 ---
-*Last updated: 2026-03-24 after initialization*
+*Last updated: 2026-03-30 after milestone revision with academic evidence*
