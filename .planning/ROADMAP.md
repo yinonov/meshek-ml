@@ -41,7 +41,10 @@ Plans:
   3. Notebook outputs MAE, RMSE, WMAPE, and pinball loss after training.
   4. Real data with wrong schema triggers a clear fail-fast error before training starts.
   5. Synthetic and real data flow through the same pipeline code path after schema validation.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Schema validation module + pipeline.py orchestrator implementation with tests
+- [ ] 02-02-PLAN.md — Notebook parameter cell and forecasting section integration
 **UI hint**: yes
 
 ### Phase 3: Optimization Baseline
@@ -74,6 +77,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Approach & Colab Bootstrap | 0/2 | Not started | - |
-| 2. Forecasting Pipeline | 0/TBD | Not started | - |
+| 2. Forecasting Pipeline | 0/2 | Not started | - |
 | 3. Optimization Baseline | 0/TBD | Not started | - |
 | 4. Integration & Documentation | 0/TBD | Not started | - |
