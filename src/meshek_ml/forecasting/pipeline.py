@@ -38,7 +38,8 @@ def run_forecast_pipeline(
     train_end_date: str = "2024-06-30",
     horizon: int = 7,
     seed: int = 42,
-) -> MetricsDict:
+    return_predictions: bool = False,
+) -> MetricsDict | tuple[MetricsDict, pd.Series]:
     """Run the full forecasting pipeline: validate, feature engineer, train, evaluate.
 
     Args:
@@ -47,9 +48,12 @@ def run_forecast_pipeline(
         train_end_date: Train/validation split date (inclusive for train).
         horizon: Forecast horizon in days (metadata only, not used in split).
         seed: Random seed for reproducibility.
+        return_predictions: If True, also return the validation predictions
+            as a pandas Series (for downstream use in optimization).
 
     Returns:
-        Dictionary with keys: mae, rmse, wmape, pinball_loss.
+        If return_predictions is False: dict with keys mae, rmse, wmape, pinball_loss.
+        If return_predictions is True: tuple of (metrics dict, predictions Series).
 
     Raises:
         SchemaValidationError: If data is missing required columns or has
@@ -110,6 +114,8 @@ def run_forecast_pipeline(
     predictions = model.predict(x_val)
     metrics = compute_all_metrics(y_val, predictions)
 
+    if return_predictions:
+        return metrics, pd.Series(predictions, index=val.index, name="predicted_demand")
     return metrics
 
 
