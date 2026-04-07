@@ -1,30 +1,32 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: v1.0 milestone complete
-stopped_at: Milestone revised with academic evidence. Phase 1 is ready for planning.
-last_updated: "2026-03-31T11:13:57.112Z"
+milestone: v1.1
+milestone_name: Merchant Order Advisor
+status: Defining requirements
+stopped_at: Milestone v1.1 started
+last_updated: "2026-04-07"
 progress:
-  total_phases: 4
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 6
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-30)
+See: .planning/PROJECT.md (updated 2026-04-07)
 
-**Core value:** Deliver one reproducible Colab workflow that trains a LightGBM forecast and benchmarks a newsvendor/PPO optimization — grounded in academic evidence for each method choice.
-**Current focus:** Phase 02 — forecasting-pipeline
+**Core value:** Answer "how much should I order tomorrow?" for Israeli greengrocers — wrapping proven ML behind a zero-friction WhatsApp interface.
+**Current focus:** Not started (defining requirements)
 
 ## Current Position
 
-Phase: 04
-Plan: Not started
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-07 — Milestone v1.1 started
 
 ## Performance Metrics
 

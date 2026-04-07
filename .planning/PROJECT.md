@@ -6,7 +6,19 @@ meshek-ml is a research codebase for forecasting demand and optimizing inventory
 
 ## Core Value
 
-Deliver one reproducible Colab workflow that trains a LightGBM forecast and benchmarks a newsvendor/PPO optimization — grounded in academic evidence for each method choice.
+Answer "how much should I order tomorrow?" for Israeli greengrocers — wrapping proven ML forecasting and optimization behind a zero-friction WhatsApp interface.
+
+## Current Milestone: v1.1 Merchant Order Advisor
+
+**Goal:** Deliver a WhatsApp-based daily order recommendation service for Israeli greengrocers, wrapping the existing forecast + optimization pipeline behind a zero-friction interface.
+
+**Target features:**
+- FastAPI backend wrapping existing newsvendor + LightGBM pipeline
+- Hebrew free-text sales input parsing (dictionary-based, no LLM)
+- Cold-start-aware recommendation engine (defaults → history → ML forecast)
+- Per-merchant sales history storage
+- WhatsApp Business API integration
+- Proactive daily order recommendation delivery
 
 ## Requirements
 
@@ -31,7 +43,7 @@ Deliver one reproducible Colab workflow that trains a LightGBM forecast and benc
 
 ### Active
 
-(None yet — next milestone will define new requirements)
+(Defined in REQUIREMENTS.md for v1.1)
 
 ### Out of Scope
 
@@ -52,7 +64,11 @@ Deliver one reproducible Colab workflow that trains a LightGBM forecast and benc
 - `src/meshek_ml/forecasting/schema.py` provides canonical schema validation with SchemaValidationError.
 - Notebook (`notebooks/colab_quickstart.ipynb`) has 28 cells covering the full two-stage pipeline.
 - `academic/APPROACH.md` documents all method choices with 8 paper citations.
-- Next focus: federated learning across merchants, or dynamic pricing integration.
+- Next focus: merchant-facing WhatsApp ordering tool (v1.1).
+- Target users: low-tech Israeli greengrocers (ירקנים) who order on gut feeling at 2-3 AM wholesale market runs.
+- WhatsApp is their primary business tool; zero appetite for apps, dashboards, or configuration.
+- Merchant waste is 10-25% of inventory; even 3-5% reduction = meaningful income improvement.
+- No competing ML-based ordering tool exists for this segment (Afresh/RELEX target chains).
 
 ## Constraints
 
@@ -76,4 +92,22 @@ Deliver one reproducible Colab workflow that trains a LightGBM forecast and benc
 | Simulation as training ground | Original brief + MARIOD confirm | ✓ Good — 8 products, Hebrew locale merchants |
 
 ---
-*Last updated: 2026-03-31 after v1.0 milestone*
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
+---
+*Last updated: 2026-04-07 after v1.1 milestone start*
