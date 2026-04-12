@@ -1,280 +1,220 @@
-# Technology Stack: Colab-Friendly LightGBM Forecast Training
+# Stack Research
 
-**Project:** meshek-ml
-**Milestone Context:** Subsequent brownfield milestone focused on a first end-to-end forecasting training workflow
-**Researched:** 2026-03-25
-**Overall confidence:** HIGH
+**Domain:** ML Inference API Service (FastAPI layer over existing LightGBM + PPO pipeline)
+**Researched:** 2026-04-10
+**Confidence:** HIGH
 
-## Recommendation Summary
+## Context
 
-For this milestone, the standard 2026 stack is a **single Google Colab notebook running a CPU runtime**, backed by the existing `meshek_ml` package, using **pandas + pyarrow parquet** for tabular interchange and **LightGBM 4.x** as the only supported forecasting model. Real data should be loaded from **Google Drive** with a strict four-column contract, while synthetic data should be generated inside the same notebook and normalized into the same training schema before feature engineering.
+This is a SUBSEQUENT MILESTONE stack. The existing Python stack (LightGBM, Stable-Baselines3, Pydantic 2.0, Hydra, Gymnasium, pandas, pyarrow) is already validated and unchanged. This document covers only the NEW additions needed to expose the ML pipeline as a FastAPI inference service consumed by the meshek TypeScript app.
 
-This recommendation is specific to the current repo state. The repository already has usable building blocks for synthetic demand generation, parquet IO, lag/rolling/calendar features, and core forecast metrics. What is missing is not a broader forecasting platform; it is a narrow, repeatable orchestration layer that runs cleanly in a fresh Colab session. That means v1 should optimize for **reliability and low branching**, not for model breadth or notebook cleverness.
-
-The design center should be: **copy repo to Drive or clone into runtime, mount Drive, install the package with forecasting extras, stage one parquet working dataset locally in `/content`, train one LightGBM regressor, save artifacts back to Drive, and render metrics in notebook output**.
+---
 
 ## Recommended Stack
 
-### Runtime and Execution
+### Core Technologies (NEW additions only)
 
-| Layer | Recommendation | Why for this project |
-|---|---|---|
-| Notebook host | Google Colab managed notebook | The milestone explicitly targets team-usable Colab execution with minimal setup. |
-| Runtime type | Standard CPU runtime | Daily retail demand on lag/rolling/calendar features is classic tabular training. CPU is enough for v1, avoids GPU variability, and fits Colab guidance to avoid unused accelerators. |
-| Python target | Python 3.10+ package compatibility, tolerate current Colab default runtime version | The repo requires `>=3.10`. Do not overfit the milestone to one transient Colab patch version. |
-| Package install | `%pip install -e .[simulation,forecasting]` from repo checkout or Drive copy | Reuses existing package layout and avoids notebook-local duplication of feature logic. |
-| Notebook shape | One setup notebook, not a multi-notebook workflow | The missing piece is orchestration. Splitting v1 into multiple notebooks would create avoidable drift. |
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| fastapi | >=0.115 | HTTP API framework | Already installed at 0.135.2; lifespan context manager is the standard pattern for model loading; Pydantic 2.0 native (matches existing schemas); lifespan API replaced deprecated @app.on_event since 0.93 |
+| uvicorn[standard] | >=0.30 | ASGI server | Already installed at 0.42.0; since 2024 uvicorn supports --workers N directly, so Gunicorn is no longer needed in containerized single-service deployments |
+| sqlmodel | 0.0.38 | ORM for SQLite merchant history storage | Same author as FastAPI; unifies Pydantic 2.0 model and SQLAlchemy table in one class — eliminates the dual-model problem (separate SQLAlchemy table class + Pydantic schema) that raw SQLAlchemy requires |
+| aiosqlite | 0.22.1 | Async SQLite driver | Bridges SQLite to asyncio without blocking the event loop; production-stable (Dec 2025); no PostgreSQL needed for a single-process service with one merchant writing at a time |
 
-### Core Libraries
+### Supporting Libraries (NEW additions only)
 
-| Library | Version band | Role in workflow | Why |
-|---|---|---|---|
-| `pandas` | `>=2.0` already in repo | Main table contract | Existing code is already DataFrame-first across simulation, forecasting, and IO. |
-| `pyarrow` | `>=14.0` already in repo | Parquet engine and schema-safe persistence | Best fit for Colab + pandas parquet round-trips and already implied by repo IO/tests. |
-| `lightgbm` | `>=4.0` already in repo optional deps | Primary training model | Matches existing wrapper, strong tabular baseline, easy CPU training in Colab. |
-| `numpy` | existing repo dependency | Array math and target handling | Already central across feature engineering and metrics. |
-| `scikit-learn` | add for v1 notebook/runtime support | Time-based split utilities and optional preprocessing helpers | LightGBM uses a scikit-learn API, and explicit `TimeSeriesSplit` / train-validation utilities are standard for a clean notebook training loop. |
-| `matplotlib` | existing repo dependency | Basic residual / feature importance plots | Already present; enough for v1 diagnostics without adding plotting complexity. |
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| joblib | 1.5.3 | Persist and load sklearn-compatible pipeline artifacts | Use ONLY for the feature transformer pipeline object (e.g. a fitted sklearn Pipeline wrapping the feature builder). Do NOT use for the raw LightGBM Booster — use LightGBM native save/load instead to avoid documented prediction inconsistencies |
+| python-multipart | >=0.0.9 | Form data parsing | Required by FastAPI when any endpoint accepts file uploads or form fields (e.g. bulk sales data ingestion); technically a FastAPI transitive dep but must be pinned explicitly |
+| httpx | >=0.27 | Async HTTP test client | FastAPI's built-in TestClient is synchronous; httpx AsyncClient is the correct test client for async route tests with pytest-asyncio |
+| pytest-asyncio | >=0.23 | Async test runner support | Required to run async def test functions; set asyncio_mode = "auto" in pyproject.toml to remove per-test decorator overhead |
 
-### Data Access and Persistence
+**LightGBM serialization note:** Use LightGBM's native `booster.save_model("model.txt")` and `lgb.Booster(model_file="model.txt")` for the Booster object. The native text format is human-readable, version-stable across Colab environments, and avoids prediction inconsistencies that can occur with joblib/pickle serialization of raw Booster objects (documented in LightGBM GitHub issue #5951).
 
-| Concern | Recommendation | Why |
-|---|---|---|
-| Real data ingress | Google Drive mounted via `drive.mount()` | This is the required real-data source for the milestone. |
-| Working data format | Parquet for staged training data | Faster and more stable than repeated CSV reads in Colab; aligns with current IO helpers. |
-| Raw external real-data allowance | CSV or parquet accepted at notebook boundary, then normalize to parquet immediately | Lets the team load common Drive exports while standardizing the internal path. |
-| Local staging during run | Copy working dataset from Drive mount into `/content/...` before feature generation/training | Colab warns Drive mounts are slow and unreliable for many small I/O operations; local staging reduces mount friction. |
-| Artifact persistence | Save trained model, metrics JSON, feature list JSON, and run metadata CSV/JSON back to Drive | Colab runtimes are ephemeral; Drive is the durable store for team review. |
+### Hebrew Text Parsing (NEW — zero external dependencies)
 
-## Prescriptive v1 Workflow
+No library is needed. The requirement is dictionary-based parsing (explicitly not LLM). The correct implementation is a pure-Python lookup module:
 
-### 1. Notebook Setup
+- `data/hebrew_produce.json`: mapping of Hebrew surface forms (including common misspellings and plural variants) to canonical product names matching the existing `product` schema values (e.g., "עגבניות", "מלפפון")
+- Normalization via Python's stdlib `unicodedata.normalize("NFD")` for niqqud stripping and whitespace normalization
+- `src/meshek_ml/api/hebrew_parser.py`: approximately 60-80 lines, zero runtime dependencies
 
-The notebook should start with a deterministic setup block:
+**Why not hebrew-tokenizer or HebPipe?** HebPipe (updated March 2025) is a full morpho-syntactic pipeline (POS tagging, dependency parsing, coreference) — overkill for a closed-vocabulary lookup of 30-40 produce items. Hebrew-Tokenizer (YontiLevin) is abandoned since 2019. The produce domain is closed-vocabulary; a dictionary is more reliable than a statistical tokenizer and has zero model weight to load.
 
-1. Mount Google Drive.
-2. Clone or access the repo.
-3. Install the package with `simulation` and `forecasting` extras.
-4. Set a seed.
-5. Create local working directories under `/content/meshek_ml_runs/...`.
+### Development Tools
 
-Recommended install pattern:
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| Docker | Container packaging for Railway deploy | Use python:3.11-slim base; model weights drive image size, not FastAPI |
+| docker-compose | Local development orchestration | One service (the API); mounts ./data volume for SQLite DB and model artifact files |
+
+---
+
+## Installation
+
+Add to `pyproject.toml` as a new optional-dependencies group:
+
+```toml
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sqlmodel>=0.0.38",
+    "aiosqlite>=0.22",
+    "python-multipart>=0.0.9",
+    "joblib>=1.4",
+]
+
+api-dev = [
+    "meshek-ml[api]",
+    "httpx>=0.27",
+    "pytest-asyncio>=0.23",
+]
+```
+
+Install locally:
 
 ```bash
-%pip install -U pip
-%pip install -e .[simulation,forecasting]
+pip install -e ".[api-dev,forecasting,optimization]"
 ```
 
-If the team keeps the repo as a Drive folder instead of cloning inside the runtime, that is acceptable for source code, but the **active training dataset and artifacts should still be copied between Drive and local runtime directories intentionally**, rather than training directly against the mounted path.
+---
 
-### 2. Unified Input Contract
+## Architecture Patterns
 
-The notebook should support exactly two data entry paths:
+### Model Loading (lifespan, not @app.on_event)
 
-| Source | Input expectation | Normalization step |
-|---|---|---|
-| Synthetic | Generated by existing simulation code | Map or derive training target column into the forecasting path and save staged parquet |
-| Real | Daily sales table from Drive with strict schema: `date`, `merchant_id`, `product`, `quantity` | Validate schema, cast dtypes, sort rows, rename `quantity` to the internal target column, save staged parquet |
+`@app.on_event("startup")` is deprecated since FastAPI 0.93. Use the lifespan context manager:
 
-The important implementation decision is to normalize both branches into **one canonical training frame** before feature engineering. For this repo, that means producing a DataFrame with:
+```python
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+import lightgbm as lgb
 
-- `date`
-- `merchant_id`
-- `product`
-- one target column used by feature builders and model training
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load once at startup — LightGBM native text format
+    app.state.booster = lgb.Booster(model_file="models/lgb_booster.txt")
+    app.state.newsvendor_params = load_newsvendor_params("models/newsvendor.json")
+    yield
+    # Cleanup: nothing required for in-memory model objects
 
-Because `src/meshek_ml/forecasting/features.py` currently defaults to `realized_demand`, the cleanest v1 choice is:
-
-- Synthetic path: keep or derive `realized_demand`
-- Real path: rename `quantity` to `realized_demand` after schema validation
-
-That keeps notebook branching low and avoids invasive refactors in the first milestone.
-
-### 3. Schema Validation
-
-Use **strict fail-fast validation** before any feature work.
-
-Recommended validation library choice for v1:
-
-| Option | Recommendation | Why |
-|---|---|---|
-| `pydantic` | Use for row-agnostic config and schema-contract validation helpers if needed | Already declared in the repo and suitable for clear error messages. |
-| Plain pandas checks | Required regardless | Cheapest path for column presence, dtype coercion, null checks, duplicates, and sort validation. |
-
-Minimum real-data validation rules:
-
-- Required columns are exactly present: `date`, `merchant_id`, `product`, `quantity`
-- `date` parses cleanly to datetime
-- `merchant_id` and `product` are non-null strings or castable identifiers
-- `quantity` is numeric and non-negative
-- No duplicate rows for the same `date` + `merchant_id` + `product` in v1 unless the notebook explicitly aggregates before validation
-- Data is sorted by `merchant_id`, `product`, `date` before lag generation
-
-Do not implement flexible column mapping in v1. The milestone explicitly says strict schema first.
-
-### 4. Feature Engineering
-
-For v1, keep feature generation inside the existing project contract:
-
-| Feature family | Source in repo | Keep for v1? | Notes |
-|---|---|---|---|
-| Lag features | `forecasting/features.py` | Yes | Core tabular baseline for daily demand |
-| Rolling mean/std | `forecasting/features.py` | Yes | Strong baseline signal for retail demand |
-| Calendar features | `forecasting/features.py` | Yes | Useful with no extra dependency burden |
-| Rich holiday libraries | No | No for v1 | Add later only if baseline underperforms and locale-specific effects matter materially |
-
-The v1 feature policy should be conservative:
-
-- Use lag windows already aligned to daily forecasting: `1, 7, 14, 28`
-- Use rolling windows already aligned to weekly/monthly cadence: `7, 14, 28`
-- Keep `merchant_id` and `product` as categorical inputs for LightGBM if encoded carefully
-
-For category handling, the practical v1 path is to cast `merchant_id` and `product` to pandas categorical dtype and pass those columns into LightGBM through the DataFrame path. LightGBM’s current docs support categorical features directly and note that categorical inputs should be integer-like under the hood; pandas categoricals are the least disruptive way to make this consistent without one-hot encoding.
-
-### 5. Train/Validation Strategy
-
-This is the most important modeling discipline for the milestone.
-
-Use a **time-based holdout**, not a random split.
-
-Recommended v1 strategy:
-
-- Train on the earlier segment of each merchant-product history
-- Validate on the most recent contiguous horizon
-- If enough history exists, optionally use `TimeSeriesSplit` for notebook experiments, but keep the primary reported result as one simple holdout window
-
-Why this fits the repo:
-
-- The existing features are time-derived
-- Random splits would leak future information through lag/rolling structure
-- Team review in Colab is easier when there is one explicit final holdout period
-
-For daily retail demand, the milestone should report at least:
-
-- `mae`
-- `rmse`
-- `wmape`
-- `pinball_loss` if quantile work is kept active
-
-Those already map to `src/meshek_ml/forecasting/evaluation.py`.
-
-### 6. LightGBM Training Configuration
-
-Use **`lightgbm.LGBMRegressor` as the default notebook API** because the repo already wraps it and it is easier to integrate into a notebook-driven training function than dropping immediately to native `lgb.train()`.
-
-Recommended v1 defaults:
-
-| Parameter | Value | Rationale |
-|---|---|---|
-| `objective` | `regression` | Matches current wrapper and daily quantity prediction baseline |
-| `metric` | `mae` | Stable and already used in repo defaults |
-| `n_estimators` | start around `500` with early stopping | Already close to current wrapper; final tree count should be selected by validation |
-| `learning_rate` | `0.03` to `0.05` | Reasonable CPU-friendly baseline |
-| `num_leaves` | `31` to start | Standard baseline for tabular regression |
-| `subsample` | `0.8` | Matches current repo wrapper |
-| `colsample_bytree` | `0.8` | Matches current repo wrapper |
-| `random_state` | explicit fixed seed | Reproducibility in Colab |
-| early stopping | required | Officially supported and important for ephemeral notebook runs |
-
-Specific training guidance:
-
-- Add a validation set and use early stopping.
-- Persist the best iteration.
-- Save the fitted booster with its native model-save method.
-- Record feature order used for training so prediction notebooks cannot silently drift.
-
-For artifact format, prefer:
-
-| Artifact | Format | Why |
-|---|---|---|
-| Model | LightGBM text model via booster `save_model()` | Native, stable, easy to reload, no pickling fragility across notebook sessions |
-| Metrics | JSON | Human-readable and easy to diff |
-| Training config | JSON or YAML snapshot | Makes notebook runs reproducible |
-| Feature list | JSON | Prevents silent train/predict schema mismatch |
-| Predictions sample | Parquet | Easy inspection and reuse |
-
-Do not make pickle or joblib the primary artifact format in v1. Native LightGBM model export is safer across changing Colab environments.
-
-### 7. Drive and Artifact Layout
-
-Recommended Drive layout for this repo:
-
-```text
-MyDrive/meshek-ml/
-  data/
-    real/
-    synthetic/
-    staged/
-  artifacts/
-    forecasting/
-      runs/
-        YYYYMMDD_HHMMSS/
-          model.txt
-          metrics.json
-          config.json
-          feature_columns.json
-          validation_predictions.parquet
-  notebooks/
+app = FastAPI(lifespan=lifespan)
 ```
 
-This layout is intentionally boring. That is correct for v1. The repo currently has no experiment registry or durable service layer; a timestamped Drive directory is the right operational level.
+Access in route handlers via `request.app.state.booster`. This is the FastAPI-official pattern since 0.93.
 
-## Concrete Additions for This Repo
+### Database (SQLModel + aiosqlite)
 
-### Add or standardize
+SQLite is correct for this service. It stores append-heavy merchant sales logs from a single-process service. PostgreSQL adds operational complexity with zero benefit at this scale and concurrency level.
 
-| Item | Recommendation |
-|---|---|
-| Notebook | Add one dedicated Colab forecasting training notebook rather than expanding the placeholder forecasting notebook with many alternate flows |
-| Forecast pipeline module | Implement a narrow orchestration function in `src/meshek_ml/forecasting/pipeline.py` that the notebook calls |
-| Input validation helper | Add a small utility that validates and normalizes real/synthetic inputs into one canonical DataFrame |
-| Config surface | Use one small forecasting config object or YAML snapshot for notebook runs, but do not build full Hydra orchestration yet |
-| Optional dependency | Add `scikit-learn` to forecasting extras if time-split utilities are used directly |
+Write concurrency: SQLite uses a database-level write lock. Since this is a single FastAPI process with merchants writing sales sequentially (daily input, not concurrent streams), this is not a problem. If future horizontal scaling requires multiple concurrent writers, enable WAL mode: `PRAGMA journal_mode=WAL`.
 
-### Reuse exactly as-is where possible
+Database URL pattern: `sqlite+aiosqlite:///./data/meshek.db`
 
-| Existing code | Reuse decision |
-|---|---|
-| `src/meshek_ml/common/io.py` | Keep parquet/csv persistence helpers and extend only if needed for artifact saving |
-| `src/meshek_ml/forecasting/features.py` | Keep as the baseline feature builder contract |
-| `src/meshek_ml/forecasting/tree_models.py` | Keep LightGBM wrapper shape, but extend with validation-aware fit and seed support |
-| `src/meshek_ml/forecasting/evaluation.py` | Keep as the notebook metrics layer |
-| `src/meshek_ml/simulation/` | Use as the synthetic source of truth |
+### Cold-Start Recommendation (no external dep)
 
-## What Not To Use for v1
+Implement as three-tier fallback in `src/meshek_ml/api/recommendation.py`:
 
-These exclusions matter as much as the positive recommendation.
+1. No stored history — static defaults per product from `data/cold_start_defaults.json`
+2. Fewer than 14 days of history — newsvendor formula using empirical mean/std of stored rows
+3. 14+ days of history — LightGBM forecast feeding into newsvendor optimization
 
-| Do not use | Why not for this milestone |
-|---|---|
-| Darts as the primary training abstraction | The repo declares it, but v1 needs one narrow tabular baseline and Darts would add orchestration and dependency surface without solving the current gap. |
-| Prophet | Useful for some series, but it is a different modeling path and does not fit the shared synthetic/real tabular workflow goal. |
-| XGBoost as a parallel baseline in the same milestone | The repo already has an adapter, but supporting two tree stacks doubles notebook branching and artifact logic before the first path is stable. |
-| GPU runtime | LightGBM demand forecasting here is tabular CPU work; GPU adds runtime variability and wastes Colab quota if not clearly needed. |
-| Direct training against mounted Drive files | Colab docs warn Drive I/O can be slow and error-prone for many operations. Stage locally in `/content` first. |
-| Flexible schema mapping UI | Out of scope by milestone definition. Strict schema is the right v1 discipline. |
-| MLflow / Weights & Biases / external tracking service | Overkill for the current repo maturity; timestamped Drive artifacts are enough for the first team-usable workflow. |
-| Pickle-first model persistence | More fragile across Colab sessions and package changes than native LightGBM save/load. |
-| Full Hydra notebook orchestration | The repo has config pieces but not a working runtime. Building full Hydra support now would be architecture work, not milestone-focused workflow delivery. |
-| Federated or optimization hooks in the training notebook | Explicitly out of scope and would contaminate the clean forecasting path. |
+This maps cleanly to the existing `newsvendor.py` and `pipeline.py` modules without modification.
 
-## Confidence and Rationale
+---
 
-| Area | Confidence | Notes |
-|---|---|---|
-| Colab notebook + Drive workflow | HIGH | Based on current Colab docs and the milestone requirement itself. |
-| pandas + pyarrow parquet as canonical data path | HIGH | Strong fit with existing repo IO plus current pandas parquet guidance. |
-| LightGBM 4.x as primary model | HIGH | Already present in repo optional deps and supported by current official docs. |
-| CPU-only runtime recommendation | HIGH | Consistent with Colab guidance and the workload shape. |
-| `scikit-learn` addition for split utilities | MEDIUM | Standard and pragmatic, but this part is a recommendation derived from workflow needs rather than an existing repo dependency. |
-| Native LightGBM artifact save over pickle/joblib | HIGH | Directly supported by official LightGBM docs and safer in ephemeral notebook environments. |
+## Alternatives Considered
+
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| SQLModel + aiosqlite | SQLAlchemy Core + aiosqlite directly | When complex joins, raw SQL, or SQLModel Pydantic overhead become measurable in production — unlikely at this scale |
+| SQLite | PostgreSQL | When multiple service instances run concurrently (horizontal scaling); not needed for a single-container ML inference service |
+| LightGBM native save_model | joblib for Booster | Never for raw Booster; joblib is fine only for sklearn pipeline wrapper objects around the feature transformer |
+| Dictionary parser | HebPipe / hebrew-tokenizer | Only if morphological analysis beyond a closed produce vocabulary is required |
+| uvicorn --workers N directly | gunicorn + uvicorn workers | Gunicorn remains valid on bare-metal multi-process setups; unnecessary in Docker containers where the container is the process boundary |
+| Railway | Fly.io | Fly.io for global edge distribution or if you prefer CLI-first workflow; both are pay-as-you-go (no free tier as of April 2026) |
+| Railway | Render | Render is a viable alternative; Railway preferred if meshek app is already there for co-location |
+
+---
+
+## What NOT to Add
+
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| Redis / fastapi-cache | Adds operational complexity; LightGBM inference on CPU is under 100ms for a daily recommendation; overkill for a per-merchant request rate of at most once per day | app.state model cache via lifespan (already in-memory at startup) |
+| Celery / task queues | Daily recommendations are triggered on-demand by the meshek app; there is no background scheduling role for meshek-ml | Synchronous POST /recommend endpoint; meshek handles delivery scheduling |
+| HebPipe or spaCy Hebrew | Full NLP pipeline for a 30-item closed produce vocabulary adds 500MB+ to the Docker image and model download latency | Pure-Python dictionary in hebrew_parser.py |
+| Pydantic v1 compatibility shims | The codebase already uses Pydantic 2.0 throughout; mixing v1 patterns causes silent validation differences | Pydantic 2.0 model syntax throughout the API layer |
+| Separate inference and training containers | Over-engineering for v1.1; model retraining is a manual Colab operation, not a live endpoint | Artifacts committed to repo or stored in mounted volume, loaded at startup |
+| Gunicorn | Unnecessary in containers since uvicorn added native --workers support; adds config surface for no gain | uvicorn --workers 1 in Dockerfile CMD |
+| Multiple uvicorn workers in one container | Each worker independently loads the LightGBM model into RAM; one worker handles concurrent async requests sufficiently for this service | --workers 1; scale horizontally at container level if needed |
+
+---
+
+## Deployment
+
+### Dockerfile
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY pyproject.toml .
+COPY src/ src/
+RUN pip install -e ".[api,forecasting,optimization]" --no-cache-dir
+
+COPY models/ models/
+COPY data/ data/
+
+EXPOSE 8000
+CMD ["uvicorn", "meshek_ml.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+```
+
+Single worker: multiple workers each load an independent copy of the LightGBM model. For a daily-recommendation service one async worker handles all concurrent requests.
+
+### Platform: Railway (recommended)
+
+Both Railway and Fly.io are pay-as-you-go with no free tier as of 2025. Railway is recommended for this project because:
+
+- The meshek app (companion TypeScript service) may already be on Railway; co-location reduces network latency for the Fastify to FastAPI call
+- Railway's GitHub-triggered deploy and web UI match the project's low-ops philosophy
+- Railway's official FastAPI guide confirms Docker + uvicorn as the supported path
+- Fly.io's strength is global edge distribution — irrelevant for a single-country (Israel) service
+
+Environment variables needed on Railway: `DATABASE_URL`, `MODEL_PATH`, `LOG_LEVEL`.
+
+---
+
+## Version Compatibility
+
+| Package | Compatible With | Notes |
+|---------|-----------------|-------|
+| fastapi>=0.115 | pydantic>=2.0 | FastAPI 0.100+ requires Pydantic v2; already satisfied by existing deps |
+| sqlmodel>=0.0.38 | pydantic>=2.0, sqlalchemy>=2.0 | SQLModel 0.0.14+ requires both; aiosqlite is the async driver via sqlite+aiosqlite:/// URL |
+| aiosqlite>=0.22 | sqlmodel>=0.0.38 | aiosqlite is the async driver SQLModel uses under the hood for SQLite |
+| pytest-asyncio>=0.23 | pytest>=7.4 | Already in dev deps; add asyncio_mode = "auto" to [tool.pytest.ini_options] in pyproject.toml |
+| uvicorn[standard] | fastapi>=0.115 | [standard] extra pulls websockets and httptools for full async performance |
+| httpx>=0.27 | pytest-asyncio>=0.23 | Use httpx.AsyncClient(app=app, base_url="http://test") as the async test client |
+
+---
 
 ## Sources
 
-- Google Colab FAQ: https://research.google.com/colaboratory/faq.html
-- LightGBM Python API: https://lightgbm.readthedocs.io/en/stable/Python-API.html
-- LightGBM Python package intro: https://lightgbm.readthedocs.io/en/stable/Python-Intro.html
-- LightGBM early stopping callback: https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.early_stopping.html
-- LightGBM Booster save/load docs: https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.Booster.html
-- pandas parquet write docs: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_parquet.html
-- pandas parquet read docs: https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html
+- [FastAPI Lifespan Events — official docs](https://fastapi.tiangolo.com/advanced/events/) — lifespan pattern and app.state usage (HIGH confidence)
+- [FastAPI SQL Databases — official docs](https://fastapi.tiangolo.com/tutorial/sql-databases/) — SQLModel integration pattern (HIGH confidence)
+- [SQLModel 0.0.38 — PyPI](https://pypi.org/project/sqlmodel/) — current version verified April 2026
+- [aiosqlite 0.22.1 — PyPI](https://pypi.org/project/aiosqlite/) — current version verified April 2026
+- [LightGBM Booster API — official docs](https://lightgbm.readthedocs.io/en/latest/pythonapi/lightgbm.Booster.html) — native save_model/load pattern (HIGH confidence)
+- [LightGBM joblib vs native prediction inconsistency — GitHub issue #5951](https://github.com/microsoft/LightGBM/issues/5951) — evidence for avoiding joblib on raw Booster (HIGH confidence)
+- [joblib 1.5.3 — PyPI](https://pypi.org/project/joblib/) — current version verified April 2026
+- [Uvicorn deployment — official docs](https://uvicorn.dev/deployment/) — --workers flag replaces gunicorn in containers (HIGH confidence)
+- [Railway FastAPI deploy guide](https://docs.railway.com/guides/fastapi) — Docker + uvicorn confirmed (HIGH confidence)
+- [Railway vs Fly comparison — Railway docs](https://docs.railway.com/platform/compare-to-fly) — platform tradeoffs (MEDIUM confidence)
+- [awesome-hebrew-nlp — GitHub](https://github.com/iddoberger/awesome-hebrew-nlp) — Hebrew NLP landscape survey; confirmed no lightweight dict-only library exists (MEDIUM confidence)
+- [FastAPI 0.135.3 — PyPI](https://pypi.org/project/fastapi/) — current version verified April 2026
+
+---
+*Stack research for: meshek-ml v1.1 Merchant Order Advisor — FastAPI inference API layer*
+*Researched: 2026-04-10*
