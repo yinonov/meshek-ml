@@ -331,4 +331,9 @@ class MerchantStore:
         out = pd.read_sql_query(
             query, self._conn, params=params, parse_dates=["date"]
         )
+        # WR-01: parse_dates no-ops on empty result sets, leaving object
+        # dtype. Coerce explicitly so downstream consumers always see
+        # datetime64[ns].
+        if out["date"].dtype != "datetime64[ns]":
+            out["date"] = pd.to_datetime(out["date"])
         return out[REQUIRED_COLUMNS]
