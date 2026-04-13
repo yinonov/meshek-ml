@@ -163,6 +163,13 @@ def _migration_001_initial(conn: sqlite3.Connection) -> None:
             language    TEXT NOT NULL DEFAULT 'he',
             created_at  TEXT NOT NULL
         );
+        -- IN-01: `merchant_id` is structurally redundant here — each
+        -- SQLite file already belongs to exactly one merchant (D-01,
+        -- filesystem-level isolation) and `write_sales` enforces a
+        -- cross-merchant guard (T-5-03). The column is retained to keep
+        -- the on-disk row shape aligned with `forecasting.schema`'s
+        -- REQUIRED_COLUMNS and to preserve a future migration path
+        -- toward multi-tenant consolidation without a schema rewrite.
         CREATE TABLE IF NOT EXISTS sales (
             date        TEXT NOT NULL,
             merchant_id TEXT NOT NULL,
