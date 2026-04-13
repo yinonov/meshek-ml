@@ -38,10 +38,10 @@ created: 2026-04-13
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 5-01-01 | 01 | 1 | STOR-01, STOR-02 | — | N/A (RED test scaffolding) | unit | `pytest tests/storage/ --collect-only -q` | ❌ W0 | ⬜ pending |
-| 5-01-02 | 01 | 1 | STOR-01, STOR-02 | — | N/A (RED test bodies) | unit | `pytest tests/storage/ -x -q` (expect ModuleNotFoundError) | ❌ W0 | ⬜ pending |
-| 5-01-03 | 01 | 1 | STOR-01 | T-5-01 | merchant_id whitelist regex `^[A-Za-z0-9_-]{1,64}$` + Path.resolve parent check | unit | `pytest tests/storage/test_path_traversal.py -x -q` (expect RED) | ❌ W0 | ⬜ pending |
-| 5-02-01 | 02 | 2 | STOR-01, STOR-02 | T-5-01, T-5-02, T-5-03 | Parameterized SQL only; whitelist regex; cross-tenant guard | unit+integration | `pytest tests/storage/ -x -q` (expect GREEN) | ❌ W0 | ⬜ pending |
+| 5-01-01 | 01 | 1 | STOR-01, STOR-02 | — | Test scaffolding | unit | `pytest tests/storage/ --collect-only -q` | ✅ | ✅ green |
+| 5-01-02 | 01 | 1 | STOR-01, STOR-02 | — | Round-trip + isolation + schema tests | unit | `pytest tests/storage/ -x -q` | ✅ | ✅ green |
+| 5-01-03 | 01 | 1 | STOR-01 | T-5-01 | merchant_id whitelist regex `^[A-Za-z0-9_-]{1,64}$` + Path.resolve parent check | unit | `pytest tests/storage/test_path_traversal.py -x -q` | ✅ | ✅ green |
+| 5-02-01 | 02 | 2 | STOR-01, STOR-02 | T-5-01, T-5-02, T-5-03 | Parameterized SQL only; whitelist regex; cross-tenant guard | unit+integration | `pytest tests/storage/ -x -q` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -74,3 +74,15 @@ created: 2026-04-13
 - [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** approved 2026-04-13
+
+---
+
+## Validation Audit 2026-04-13
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+Audit ran `pytest tests/storage/ -q` → **35 passed in 0.92s**. All 4 task entries transitioned from ⬜ pending → ✅ green. No missing tests, no manual-only escalations. Phase 5 remains Nyquist-compliant.
