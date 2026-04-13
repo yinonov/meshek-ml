@@ -10,15 +10,21 @@ Answer "how much should I order tomorrow?" for Israeli greengrocers — wrapping
 
 ## Current Milestone: v1.1 Merchant Order Advisor
 
-**Goal:** Deliver a WhatsApp-based daily order recommendation service for Israeli greengrocers, wrapping the existing forecast + optimization pipeline behind a zero-friction interface.
+**Goal:** Expose the existing forecast + optimization pipeline as an ML inference service that the meshek app (github.com/yinonov/meshek) consumes to deliver daily order recommendations.
 
-**Target features:**
+**Architecture:** meshek-ml is a **backend ML service only**. The merchant-facing app (dashboard, WhatsApp integration, order management) lives in the meshek repo. meshek-ml exposes a FastAPI inference API (e.g., `/recommend`), and meshek's Fastify backend calls it — same pattern as meshek's existing `llm-engine` service.
+
+**Target features (meshek-ml scope):**
 - FastAPI backend wrapping existing newsvendor + LightGBM pipeline
 - Hebrew free-text sales input parsing (dictionary-based, no LLM)
 - Cold-start-aware recommendation engine (defaults → history → ML forecast)
 - Per-merchant sales history storage
-- WhatsApp Business API integration
-- Proactive daily order recommendation delivery
+
+**Owned by meshek app (NOT in scope here):**
+- WhatsApp Business API integration (already implemented in meshek)
+- Proactive daily order recommendation delivery via WhatsApp
+- Merchant dashboard display of recommendations
+- Order management and catalog
 
 ## Requirements
 
