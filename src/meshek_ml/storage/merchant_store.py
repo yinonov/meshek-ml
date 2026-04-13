@@ -300,12 +300,16 @@ class MerchantStore:
 
         assert self._conn is not None
         with self._conn:
+            # WR-02: drop the no-op `merchant_id = excluded.merchant_id`
+            # SET clause. The cross-merchant guard above already prevents
+            # foreign merchant_ids from reaching this statement, and the
+            # per-file isolation layer ensures collision is impossible in
+            # practice. Keeping the SET was misleading dead code.
             self._conn.executemany(
                 "INSERT INTO sales (date, merchant_id, product, quantity) "
                 "VALUES (?, ?, ?, ?) "
                 "ON CONFLICT(date, product) DO UPDATE SET "
-                "quantity = excluded.quantity, "
-                "merchant_id = excluded.merchant_id",
+                "quantity = excluded.quantity",
                 rows,
             )
         return len(rows)
