@@ -87,11 +87,23 @@ class MerchantProfile(BaseModel):
 
 
 def _data_root() -> Path:
-    """Resolve the data root from $MESHEK_DATA_DIR (default `data/merchants`).
+    """Resolve the data root from ``$MESHEK_DATA_DIR``.
 
-    Read on every call so tests using `monkeypatch.setenv` see the override.
+    Read on every call so tests using ``monkeypatch.setenv`` see the override.
+
+    WR-03: Fail fast when ``MESHEK_DATA_DIR`` is unset rather than silently
+    anchoring to the process CWD. Different working directories would
+    otherwise produce different data roots and orphan stores. Callers must
+    set the env var explicitly (tests use a monkeypatched ``tmp_path``).
     """
-    return Path(os.environ.get("MESHEK_DATA_DIR", "data/merchants")).resolve()
+    raw = os.environ.get("MESHEK_DATA_DIR")
+    if raw is None or not raw.strip():
+        raise MerchantStoreError(
+            "MESHEK_DATA_DIR must be set to an absolute path. "
+            "Tests should monkeypatch it to tmp_path; deployments should "
+            "point it at a persistent volume (e.g. /var/lib/meshek/merchants)."
+        )
+    return Path(raw).resolve()
 
 
 def _validate_merchant_id(merchant_id: str) -> str:
