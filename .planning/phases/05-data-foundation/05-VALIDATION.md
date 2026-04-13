@@ -1,9 +1,9 @@
 ---
 phase: 5
 slug: data-foundation
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-13
 ---
 
@@ -18,8 +18,8 @@ created: 2026-04-13
 | Property | Value |
 |----------|-------|
 | **Framework** | pytest 7.x |
-| **Config file** | pyproject.toml / pytest.ini |
-| **Quick run command** | `pytest tests/storage/ -q` |
+| **Config file** | pyproject.toml |
+| **Quick run command** | `pytest tests/storage/ -x -q` |
 | **Full suite command** | `pytest -q` |
 | **Estimated runtime** | ~10 seconds |
 
@@ -27,7 +27,7 @@ created: 2026-04-13
 
 ## Sampling Rate
 
-- **After every task commit:** Run `pytest tests/storage/ -q`
+- **After every task commit:** Run `pytest tests/storage/ -x -q`
 - **After every plan wave:** Run `pytest -q`
 - **Before `/gsd-verify-work`:** Full suite must be green
 - **Max feedback latency:** 15 seconds
@@ -38,9 +38,10 @@ created: 2026-04-13
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 5-01-01 | 01 | 1 | STOR-01 | — | N/A | unit | `pytest tests/storage/ -q` | ❌ W0 | ⬜ pending |
-
-*Populated by planner — see PLAN.md task table for full mapping.*
+| 5-01-01 | 01 | 1 | STOR-01, STOR-02 | — | N/A (RED test scaffolding) | unit | `pytest tests/storage/ --collect-only -q` | ❌ W0 | ⬜ pending |
+| 5-01-02 | 01 | 1 | STOR-01, STOR-02 | — | N/A (RED test bodies) | unit | `pytest tests/storage/ -x -q` (expect ModuleNotFoundError) | ❌ W0 | ⬜ pending |
+| 5-01-03 | 01 | 1 | STOR-01 | T-5-01 | merchant_id whitelist regex `^[A-Za-z0-9_-]{1,64}$` + Path.resolve parent check | unit | `pytest tests/storage/test_path_traversal.py -x -q` (expect RED) | ❌ W0 | ⬜ pending |
+| 5-02-01 | 02 | 2 | STOR-01, STOR-02 | T-5-01, T-5-02, T-5-03 | Parameterized SQL only; whitelist regex; cross-tenant guard | unit+integration | `pytest tests/storage/ -x -q` (expect GREEN) | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -48,12 +49,12 @@ created: 2026-04-13
 
 ## Wave 0 Requirements
 
-- [ ] `tests/storage/__init__.py` — package marker
-- [ ] `tests/storage/conftest.py` — `tmp_path`-based `MESHEK_DATA_DIR` fixture
-- [ ] `tests/storage/test_merchant_store.py` — stubs for STOR-01, STOR-02 success criteria
-- [ ] `tests/storage/test_isolation.py` — stub for filesystem-level isolation criterion
-- [ ] `tests/storage/test_schema_enforcement.py` — stub for canonical-schema fail-fast criterion
-- [ ] `tests/storage/test_path_traversal.py` — stub for merchant_id whitelist threat mitigation
+- [x] `tests/storage/__init__.py` — package marker (Plan 01 Task 1)
+- [x] `tests/storage/conftest.py` — `tmp_path`-based `MESHEK_DATA_DIR` fixture (Plan 01 Task 1)
+- [x] `tests/storage/test_merchant_store.py` — STOR-01, STOR-02 round-trip + profile CRUD (Plan 01 Task 2)
+- [x] `tests/storage/test_isolation.py` — filesystem-level isolation between merchants (Plan 01 Task 2)
+- [x] `tests/storage/test_schema_enforcement.py` — canonical-schema fail-fast on write (Plan 01 Task 2)
+- [x] `tests/storage/test_path_traversal.py` — T-5-01 hostile/safe parametrized IDs (Plan 01 Task 3)
 
 ---
 
@@ -65,11 +66,11 @@ created: 2026-04-13
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (4/4 tasks have automated commands)
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-04-13

@@ -611,22 +611,16 @@ df = pd.read_sql_query(
 | A5 | `created_at` in ISO-8601 UTC is acceptable (not Israel local time) | Pattern 1 | If the meshek app expects local time, convert at API boundary in Phase 8. Storage stays UTC (best practice). [ASSUMED] |
 | A6 | Merchant count per deployment stays in the low-thousands (filesystem can handle one file per merchant) | D-01 | ext4/APFS handle millions of files per directory fine; no concern below ~10k. [ASSUMED — low risk based on PROJECT.md merchant scale] |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **`merchant_id` character set — does the meshek app use pure ASCII slug/UUID, or something with `+`, `.`, `@`, or Hebrew characters?**
-   - What we know: D-14 locks caller-supplied IDs. PROJECT.md says meshek app owns identity.
-   - What's unclear: Exact format. Regex in this research assumes `[A-Za-z0-9_-]`.
-   - Recommendation: Discuss-phase follow-up — confirm format with meshek app repo. If format is wider (e.g., includes `.` or unicode), tighten the regex accordingly but keep `/`, `\`, `..`, `\x00` blacklisted.
+1. **`merchant_id` character set.**
+   - **RESOLVED (2026-04-13, user decision):** Lock `^[A-Za-z0-9_-]{1,64}$` as the v1.1 meshek-ml ↔ meshek app contract. ASCII-safe, filename-safe, 64-char ceiling. The meshek app must conform; if it later needs unicode IDs, that becomes a v1.2 contract change with a coordinated release. This regex is the single source of truth — Plan 02 hardcodes it as `_MERCHANT_ID_PATTERN`.
 
 2. **Data-at-rest encryption requirements.**
-   - What we know: Not mentioned in CONTEXT or REQUIREMENTS.
-   - What's unclear: Regulatory posture (Israeli privacy law, merchant contractual requirements).
-   - Recommendation: Explicit "accepted risk for v1.1" note in the plan + track as v2 candidate if user confirms.
+   - **RESOLVED (2026-04-13):** Not required for v1.1. Meshek-ml is a single-tenant ML inference service; merchants run their own deployments, so disk-level confidentiality is the deployer's responsibility (volume encryption, host hardening). No SQLCipher, no app-level encryption. Tracked as a v2 candidate if multi-tenant SaaS deployment is ever pursued.
 
 3. **`read_sales` empty-merchant behavior.**
-   - What we know: D-03 says unknown merchant → loud error.
-   - What's unclear: Is "merchant file exists but has zero sales rows" an error or an empty DataFrame?
-   - Recommendation: Return empty DataFrame with correct schema (`REQUIRED_COLUMNS` columns, zero rows) — matches the invariant `read_sales().columns == REQUIRED_COLUMNS`.
+   - **RESOLVED (2026-04-13):** "Merchant file exists but has zero sales rows" returns an empty `DataFrame` with `REQUIRED_COLUMNS` columns and correct dtypes (zero rows). Only an unknown merchant (no SQLite file) raises `UnknownMerchantError` per D-03. Invariant: `read_sales().columns.tolist() == REQUIRED_COLUMNS` always holds for a known merchant.
 
 ## Recommendations Summary
 
