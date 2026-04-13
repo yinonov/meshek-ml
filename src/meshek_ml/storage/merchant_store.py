@@ -247,6 +247,18 @@ class MerchantStore:
             finally:
                 self._conn = None
 
+    def _require_conn(self) -> sqlite3.Connection:
+        """Return the live connection or raise if the store is closed.
+
+        IN-02: `assert self._conn is not None` is stripped under `python -O`
+        and would surface a confusing `AttributeError` on use-after-close.
+        This helper also narrows `Optional[Connection]` to `Connection`
+        for mypy without relying on assertions.
+        """
+        if self._conn is None:
+            raise MerchantStoreError("MerchantStore is closed")
+        return self._conn
+
     # -- profile CRUD ------------------------------------------------------
 
     def create_profile(self, profile: MerchantProfile) -> MerchantProfile:
@@ -255,9 +267,9 @@ class MerchantStore:
                 f"profile.merchant_id {profile.merchant_id!r} does not match "
                 f"store merchant_id {self.merchant_id!r}"
             )
-        assert self._conn is not None
-        with self._conn:
-            self._conn.execute(
+        conn = self._require_conn()
+        with conn:
+            conn.execute(
                 "INSERT INTO merchant_profile "
                 "(merchant_id, name, timezone, language, created_at) "
                 "VALUES (?, ?, ?, ?, ?)",
@@ -272,8 +284,8 @@ class MerchantStore:
         return profile
 
     def get_profile(self) -> Optional[MerchantProfile]:
-        assert self._conn is not None
-        row = self._conn.execute(
+        conn = self._require_conn()
+        row = conn.execute(
             "SELECT merchant_id, name, timezone, language, created_at "
             "FROM merchant_profile WHERE merchant_id = ?",
             (self.merchant_id,),
@@ -317,14 +329,14 @@ class MerchantStore:
                 )
             )
 
-        assert self._conn is not None
-        with self._conn:
+        conn = self._require_conn()
+        with conn:
             # WR-02: drop the no-op `merchant_id = excluded.merchant_id`
             # SET clause. The cross-merchant guard above already prevents
             # foreign merchant_ids from reaching this statement, and the
             # per-file isolation layer ensures collision is impossible in
             # practice. Keeping the SET was misleading dead code.
-            self._conn.executemany(
+            conn.executemany(
                 "INSERT INTO sales (date, merchant_id, product, quantity) "
                 "VALUES (?, ?, ?, ?) "
                 "ON CONFLICT(date, product) DO UPDATE SET "
@@ -350,9 +362,9 @@ class MerchantStore:
             "WHERE " + " AND ".join(clauses) + " ORDER BY date, product"
         )
 
-        assert self._conn is not None
+        conn = self._require_conn()
         out = pd.read_sql_query(
-            query, self._conn, params=params, parse_dates=["date"]
+            query, conn, params=params, parse_dates=["date"]
         )
         # WR-01: parse_dates no-ops on empty result sets, leaving object
         # dtype. Coerce explicitly so downstream consumers always see
