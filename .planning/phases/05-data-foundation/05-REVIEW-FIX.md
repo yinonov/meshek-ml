@@ -3,8 +3,8 @@ phase: "05"
 fixed_at: 2026-04-13
 review_path: .planning/phases/05-data-foundation/05-REVIEW.md
 iteration: 1
-findings_in_scope: 3
-fixed: 3
+findings_in_scope: 2
+fixed: 2
 skipped: 0
 status: all_fixed
 ---
@@ -16,33 +16,25 @@ status: all_fixed
 **Iteration:** 1
 
 **Summary:**
-- Findings in scope: 3 (Critical + Warning)
-- Fixed: 3
+- Findings in scope: 2 (Info findings included via `--all` flag; review status was `clean`)
+- Fixed: 2
 - Skipped: 0
 
-All three Warning findings were fixed. No Critical findings existed. Info findings were out of scope for this iteration.
-
-The full storage test suite (`tests/storage/`, 35 tests) was run after WR-03 and all tests passed.
+The source review's status was `clean` (no Critical or Warning findings). The user ran `/gsd-code-review-fix` with `--all`, bringing both Info findings into scope. Both were fixed in separate atomic commits.
 
 ## Fixed Issues
 
-### WR-01: `read_sales` dtype inconsistency on empty result
+### IN-01: `merchant_id` column is redundant in per-file store
 
 **Files modified:** `src/meshek_ml/storage/merchant_store.py`
-**Commit:** 4fd4416
-**Applied fix:** Added explicit `pd.to_datetime` coercion after `pd.read_sql_query` when `out["date"].dtype != "datetime64[ns]"`, ensuring empty result sets still yield the correct datetime64[ns] dtype. Inline comment references WR-01 for traceability.
+**Commit:** c300019
+**Applied fix:** Chose option (a) from the reviewer's suggestion. Added a SQL comment block immediately above the `CREATE TABLE IF NOT EXISTS sales` statement in `_migration_001_initial` documenting why `sales.merchant_id` is retained despite being structurally redundant under D-01 filesystem isolation: it keeps the on-disk row shape aligned with `forecasting.schema.REQUIRED_COLUMNS` and preserves a future multi-tenant consolidation migration path. Option (b) — a destructive schema migration dropping the column — was deferred because it would require bumping `_SCHEMA_VERSION`, writing migration 002, and updating `write_sales`/`read_sales` callers, all out of scope for an info-level observation.
 
-### WR-02: Upsert schema leaves latent cross-merchant foot-gun
-
-**Files modified:** `src/meshek_ml/storage/merchant_store.py`
-**Commit:** 06564f6
-**Applied fix:** Dropped the redundant `merchant_id = excluded.merchant_id` clause from the `ON CONFLICT(date, product) DO UPDATE SET` statement in `write_sales`. Chose the "drop the redundant SET" option from the review over tightening the PK because PK tightening requires a schema migration, and the dead SET clause was the actual misleading artifact. Cross-merchant safety continues to rely on the explicit foreign-id guard plus per-file isolation. Inline comment references WR-02.
-
-### WR-03: `MESHEK_DATA_DIR` default resolves against CWD silently
+### IN-02: `assert self._conn is not None` used for runtime invariant
 
 **Files modified:** `src/meshek_ml/storage/merchant_store.py`
-**Commit:** 438000b
-**Applied fix:** Replaced the silent `"data/merchants"` default in `_data_root()` with a fail-fast `MerchantStoreError` when `MESHEK_DATA_DIR` is unset or whitespace. The error message directs tests to monkeypatch to `tmp_path` and deployments to point at a persistent volume. The existing `tests/storage/conftest.py` already sets the env var via `monkeypatch.setenv`, so the full 35-test storage suite still passes.
+**Commit:** 19ba4dc
+**Applied fix:** Implemented the "extract a small `_require_conn()` helper" variant from the reviewer's suggestion. Added a private `_require_conn(self) -> sqlite3.Connection` method on `MerchantStore` that raises `MerchantStoreError("MerchantStore is closed")` when `self._conn is None` and otherwise returns the live connection (narrowing `Optional[Connection]` to `Connection` for mypy without relying on assertions stripped under `python -O`). Replaced all four `assert self._conn is not None` usages (in `create_profile`, `get_profile`, `write_sales`, `read_sales`) with `conn = self._require_conn()` and updated the subsequent `self._conn` references inside those methods to use the local `conn` binding.
 
 ---
 
