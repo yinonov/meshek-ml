@@ -49,12 +49,18 @@ __all__ = [
 
 ParseErrorKind = Literal[
     "empty_input",
+    "input_too_long",
     "unknown_product",
     "missing_quantity",
     "bad_quantity",
     "ambiguous_quantity",
 ]
 
+
+# Upper bound on untrusted merchant input length. WhatsApp/webhook payloads
+# will feed arbitrary text through this parser; cap defensively so we never
+# allocate multi-megabyte normalization buffers on malformed input (MD-02).
+_MAX_INPUT_CHARS = 2048
 
 # Whole-token numeric regex: integer or decimal, bordered by non-\S
 # (start/end of string or whitespace). Prevents "12x" from matching and
@@ -88,6 +94,7 @@ class ParseError:
 
 _HINTS: dict[str, str] = {
     "empty_input": "לא התקבל טקסט",
+    "input_too_long": "הטקסט ארוך מדי",
     "unknown_product": "מוצר לא מזוהה",
     "missing_quantity": "חסרה כמות",
     "bad_quantity": "כמות חייבת להיות גדולה מאפס",
@@ -108,6 +115,9 @@ def parse_sales_line(text: str, catalog: ProductCatalog) -> ParsedSale | ParseEr
     """
     if text is None:  # programmer error — not merchant input
         raise TypeError("parse_sales_line: text must not be None")
+
+    if len(text) > _MAX_INPUT_CHARS:
+        return _err("input_too_long", text)
 
     if not text.strip():
         return _err("empty_input", text)

@@ -159,6 +159,15 @@ def test_ambiguous_quantity(cat: ProductCatalog) -> None:
     assert result.kind == "ambiguous_quantity"
 
 
+def test_input_too_long(cat: ProductCatalog) -> None:
+    """Inputs longer than the module cap short-circuit to input_too_long (MD-02)."""
+    huge = "20 עגבניות " + ("א" * 3000)
+    result = parse_sales_line(huge, cat)
+    assert isinstance(result, ParseError)
+    assert result.kind == "input_too_long"
+    assert result.raw_text == huge
+
+
 def test_never_raises_on_garbage(cat: ProductCatalog) -> None:
     result = parse_sales_line("!!", cat)
     assert isinstance(result, ParseError)
