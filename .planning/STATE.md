@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Merchant Order Advisor
-status: verifying
-stopped_at: Phase 8 context gathered
-last_updated: "2026-04-14T21:25:31.009Z"
-last_activity: 2026-04-14
+status: executing
+stopped_at: "Phase 8 complete (human validation deferred: Docker build + Fly.io deploy)"
+last_updated: "2026-04-14T22:18:27.871Z"
+last_activity: 2026-04-14 -- Phase 8 execution started
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_phases: 3
+  total_plans: 17
+  completed_plans: 15
+  percent: 88
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-07)
 
 **Core value:** Answer "how much should I order tomorrow?" for Israeli greengrocers — wrapping proven ML behind a zero-friction WhatsApp interface.
-**Current focus:** Phase 05 — data-foundation
+**Current focus:** Phase 8 — api-surface-deployment
 
 ## Current Position
 
-Phase: 05 (data-foundation) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
-Last activity: 2026-04-14
+Phase: 8 (api-surface-deployment) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 8
+Last activity: 2026-04-14 -- Phase 8 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -83,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-14T21:25:31.002Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-api-surface-deployment/08-CONTEXT.md
+Last session: 2026-04-14T22:18:27.865Z
+Stopped at: Phase 8 complete (human validation deferred: Docker build + Fly.io deploy)
+Resume file: .planning/phases/08-api-surface-deployment/08-VERIFICATION.md

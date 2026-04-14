@@ -26,7 +26,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] **Phase 5: Data Foundation** - Per-merchant SQLite storage, schemas, and merchant profile management ✓
 - [x] **Phase 6: Recommendation Engine** - Three-tier cold-start recommendation logic with LightGBM startup load ✓
 - [x] **Phase 7: Hebrew Input Parsing** - Dictionary-based Hebrew product name and quantity parsing ✓
-- [ ] **Phase 8: API Surface & Deployment** - FastAPI endpoints wired end-to-end, Docker container for deployment
+- [x] **Phase 8: API Surface & Deployment** - FastAPI endpoints wired end-to-end, Docker container for deployment (completed 2026-04-14)
 
 ## Phase Details
 
@@ -84,14 +84,14 @@ Plans:
   4. `POST /recommend` returns per-product order quantities with reasoning tier and confidence score for any merchant
   5. The service starts and handles requests correctly inside a Docker container deployable to Railway or Fly.io
 **UI hint**: no
-**Plans:** 6 plans
+**Plans:** 6/6 plans complete
 Plans:
-- [ ] 08-01-PLAN.md — Wave 1: create_app factory + /health (+ Wave 0 scaffolding, uvicorn/lightgbm deps, degraded-start contract)
-- [ ] 08-02-PLAN.md — Wave 1: POST /merchants (regex-validated merchant_id, auto-uuid4 id)
-- [ ] 08-03-PLAN.md — Wave 2: POST /sales (structured items + Hebrew free-text partial-success)
-- [ ] 08-04-PLAN.md — Wave 2: POST /recommend (lifespan-cached engine, all three tiers)
-- [ ] 08-05-PLAN.md — Wave 3: central exception handlers + error envelope + structured JSON request logs
-- [ ] 08-06-PLAN.md — Wave 3: Dockerfile + .dockerignore + fly.toml + env-guarded Docker smoke test
+- [x] 08-01-PLAN.md — Wave 1: create_app factory + /health (+ Wave 0 scaffolding, uvicorn/lightgbm deps, degraded-start contract)
+- [x] 08-02-PLAN.md — Wave 1: POST /merchants (regex-validated merchant_id, auto-uuid4 id)
+- [x] 08-03-PLAN.md — Wave 2: POST /sales (structured items + Hebrew free-text partial-success)
+- [x] 08-04-PLAN.md — Wave 2: POST /recommend (lifespan-cached engine, all three tiers)
+- [x] 08-05-PLAN.md — Wave 3: central exception handlers + error envelope + structured JSON request logs
+- [x] 08-06-PLAN.md — Wave 3: Dockerfile + .dockerignore + fly.toml + env-guarded Docker smoke test
 
 ## Progress
 
@@ -104,4 +104,4 @@ Plans:
 | 5. Data Foundation | v1.1 | 0/? | Not started | - |
 | 6. Recommendation Engine | v1.1 | 0/? | Not started | - |
 | 7. Hebrew Input Parsing | v1.1 | 4/4 | Complete | 2026-04-14 |
-| 8. API Surface & Deployment | v1.1 | 0/? | Not started | - |
+| 8. API Surface & Deployment | v1.1 | 6/6 | Complete   | 2026-04-14 |
