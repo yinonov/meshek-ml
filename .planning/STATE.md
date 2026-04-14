@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Merchant Order Advisor
-status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-04-14T15:54:17.224Z"
+status: verifying
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-04-14T15:58:03.440Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 6
-  completed_plans: 3
-  percent: 50
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-07)
 
 Phase: 05 (data-foundation) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-14
 
 Progress: [░░░░░░░░░░] 0%
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: Stable
 
 | Phase 06 P01 | 5m | 2 tasks | 11 files |
+| Phase 06 P02 | 6m | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Recent decisions affecting current work:
 - INFRA-01 (model startup load) placed in Phase 6 — the recommendation engine owns LightGBM, not the API layer.
 - INFRA-02 (Docker) placed in Phase 8 — deployment is the final integration concern after all endpoints exist.
 - Use plain `def` (not `async def`) for LightGBM inference — CPU-bound calls must not block the event loop via fake async.
+- [Phase 06]: Tier 2 shrinkage locked at n/(n+14) with confidence linear 0.3->0.6 over 1..13 days
 
 ### Pending Todos
 
@@ -76,6 +78,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-14T15:54:17.220Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-04-14T15:58:03.433Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None

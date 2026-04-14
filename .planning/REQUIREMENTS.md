@@ -16,8 +16,8 @@ Requirements for Merchant Order Advisor milestone. Each maps to roadmap phases.
 
 ### Recommendation Engine
 
-- [ ] **REC-01**: New merchant with no history receives recommendations based on product category defaults (Tier 1)
-- [ ] **REC-02**: Merchant with limited history receives recommendations using cross-merchant pooled priors (Tier 2)
+- [x] **REC-01**: New merchant with no history receives recommendations based on product category defaults (Tier 1)
+- [x] **REC-02**: Merchant with limited history receives recommendations using cross-merchant pooled priors (Tier 2)
 - [ ] **REC-03**: Merchant with 14+ days of sales history receives ML-forecasted recommendations via LightGBM pipeline (Tier 3)
 - [x] **REC-04**: Every recommendation response includes `reasoning_tier` and `confidence_score`
 
@@ -80,8 +80,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-02 | Phase 8 | Pending |
 | API-03 | Phase 8 | Pending |
 | API-04 | Phase 8 | Pending |
-| REC-01 | Phase 6 | Pending |
-| REC-02 | Phase 6 | Pending |
+| REC-01 | Phase 6 | Complete |
+| REC-02 | Phase 6 | Complete |
 | REC-03 | Phase 6 | Pending |
 | REC-04 | Phase 6 | Complete |
 | PARSE-01 | Phase 7 | Pending |
