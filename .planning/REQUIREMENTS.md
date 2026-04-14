@@ -28,8 +28,8 @@ Requirements for Merchant Order Advisor milestone. Each maps to roadmap phases.
 
 ### Storage
 
-- [ ] **STOR-01**: Sales history is persisted per-merchant in isolated SQLite files
-- [ ] **STOR-02**: Merchant profiles are created and retrievable
+- [x] **STOR-01**: Sales history is persisted per-merchant in isolated SQLite files
+- [x] **STOR-02**: Merchant profiles are created and retrievable
 
 ### Infrastructure
 
@@ -86,14 +86,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REC-04 | Phase 6 | Pending |
 | PARSE-01 | Phase 7 | Pending |
 | PARSE-02 | Phase 7 | Pending |
-| STOR-01 | Phase 5 | Pending |
-| STOR-02 | Phase 5 | Pending |
+| STOR-01 | Phase 5 | Complete |
+| STOR-02 | Phase 5 | Complete |
 | INFRA-01 | Phase 6 | Pending |
 | INFRA-02 | Phase 8 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 14 total
 - Mapped to phases: 14
+- Satisfied: 2 (STOR-01, STOR-02)
 - Unmapped: 0
 
 ---
