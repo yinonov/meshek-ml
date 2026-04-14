@@ -25,7 +25,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 - [x] **Phase 5: Data Foundation** - Per-merchant SQLite storage, schemas, and merchant profile management ✓
 - [x] **Phase 6: Recommendation Engine** - Three-tier cold-start recommendation logic with LightGBM startup load ✓
-- [ ] **Phase 7: Hebrew Input Parsing** - Dictionary-based Hebrew product name and quantity parsing
+- [x] **Phase 7: Hebrew Input Parsing** - Dictionary-based Hebrew product name and quantity parsing ✓
 - [ ] **Phase 8: API Surface & Deployment** - FastAPI endpoints wired end-to-end, Docker container for deployment
 
 ## Phase Details
@@ -68,10 +68,10 @@ Plans:
   3. An unrecognised Hebrew string returns a structured parse error rather than silently producing a wrong product ID
 **Plans:** 4 plans
 Plans:
-- [ ] 07-01-PLAN.md — Wave 1: parsing.normalize (Unit enum, niqqud strip, final-letter fold, unit aliases)
+- [x] 07-01-PLAN.md — Wave 1: parsing.normalize (Unit enum, niqqud strip, final-letter fold, unit aliases)
 - [x] 07-02-PLAN.md — Wave 2: parsing.catalog + configs/parsing/products_he.yaml seed (~30 products)
-- [ ] 07-03-PLAN.md — Wave 3: parsing.parser (ParsedSale, ParseError, order-invariant parse_sales_line)
-- [ ] 07-04-PLAN.md — Wave 4: public package API + D-18 integration tests against real seed catalog
+- [x] 07-03-PLAN.md — Wave 3: parsing.parser (ParsedSale, ParseError, order-invariant parse_sales_line)
+- [x] 07-04-PLAN.md — Wave 4: public package API + D-18 integration tests against real seed catalog
 
 ### Phase 8: API Surface & Deployment
 **Goal**: The meshek app can call all four endpoints over HTTP and the service can be deployed as a Docker container
@@ -95,5 +95,5 @@ Plans:
 | 4. Integration & Documentation | v1.0 | 1/1 | Complete | 2026-03-31 |
 | 5. Data Foundation | v1.1 | 0/? | Not started | - |
 | 6. Recommendation Engine | v1.1 | 0/? | Not started | - |
-| 7. Hebrew Input Parsing | v1.1 | 0/? | Not started | - |
+| 7. Hebrew Input Parsing | v1.1 | 4/4 | Complete | 2026-04-14 |
 | 8. API Surface & Deployment | v1.1 | 0/? | Not started | - |

@@ -24,7 +24,7 @@ Requirements for Merchant Order Advisor milestone. Each maps to roadmap phases.
 ### Hebrew Parsing
 
 - [x] **PARSE-01**: Hebrew product names (singular/plural, common misspellings) are mapped to canonical product IDs
-- [ ] **PARSE-02**: Quantity + unit extraction from Hebrew free text (e.g., "20 עגבניות" or "עגבניות 20")
+- [x] **PARSE-02**: Quantity + unit extraction from Hebrew free text (e.g., "20 עגבניות" or "עגבניות 20")
 
 ### Storage
 
@@ -85,7 +85,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REC-03 | Phase 6 | Complete |
 | REC-04 | Phase 6 | Complete |
 | PARSE-01 | Phase 7 | Complete |
-| PARSE-02 | Phase 7 | Pending |
+| PARSE-02 | Phase 7 | Complete |
 | STOR-01 | Phase 5 | Complete |
 | STOR-02 | Phase 5 | Complete |
 | INFRA-01 | Phase 6 | Complete |
