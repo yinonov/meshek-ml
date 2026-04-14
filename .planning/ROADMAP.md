@@ -51,7 +51,12 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   3. A merchant with 14 or more days of history receives a LightGBM-forecasted recommendation (Tier 3)
   4. Every recommendation response includes a `reasoning_tier` field and a `confidence_score` field
   5. The LightGBM model is loaded once at service startup via FastAPI lifespan — not on each request
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [x] 06-01-PLAN.md — Wave 1: contracts, configs, schemas, service extra, public storage helper
+- [ ] 06-02-PLAN.md — Wave 2: Tier 1 category defaults + Tier 2 pooled priors + PooledStore
+- [ ] 06-03-PLAN.md — Wave 3: LightGBM train_and_save + safe model_io + Tier 3 inference
+- [ ] 06-04-PLAN.md — Wave 4: RecommendationEngine façade + FastAPI lifespan factory + e2e tests
 
 ### Phase 7: Hebrew Input Parsing
 **Goal**: Free-text Hebrew sales input is reliably mapped to canonical product IDs and quantities before being stored
