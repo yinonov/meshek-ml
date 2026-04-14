@@ -80,6 +80,7 @@ class ProductCatalog:
 
     products: tuple[Product, ...]
     alias_index: MappingProxyType[str, str]
+    by_id: MappingProxyType[str, Product]
     max_alias_token_count: int = field(default=0)
 
     def resolve(self, normalized_alias: str) -> str | None:
@@ -87,11 +88,8 @@ class ProductCatalog:
         return self.alias_index.get(normalized_alias)
 
     def get(self, product_id: str) -> Product | None:
-        """Return :class:`Product` by canonical id, or None."""
-        for product in self.products:
-            if product.product_id == product_id:
-                return product
-        return None
+        """Return :class:`Product` by canonical id, or None (O(1), LW-02)."""
+        return self.by_id.get(product_id)
 
 
 def _coerce_unit(raw: Any, product_id: str) -> Unit:
@@ -205,8 +203,11 @@ def load_catalog(path: Path) -> ProductCatalog:
         max((len(key.split()) for key in alias_index), default=0)
     )
 
+    by_id: dict[str, Product] = {p.product_id: p for p in products}
+
     return ProductCatalog(
         products=tuple(products),
         alias_index=MappingProxyType(alias_index),
+        by_id=MappingProxyType(by_id),
         max_alias_token_count=max_alias_token_count,
     )
