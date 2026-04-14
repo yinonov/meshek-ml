@@ -1,0 +1,11 @@
+# Tier 1 defaults. Phase 7 will migrate this to category-keyed defaults.
+products:
+  - product_id: tomato
+    default_quantity: 8.0
+    unit: kg
+  - product_id: cucumber
+    default_quantity: 6.0
+    unit: kg
+  - product_id: onion
+    default_quantity: 5.0
+    unit: kg

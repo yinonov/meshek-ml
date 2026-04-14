@@ -46,6 +46,12 @@ tracking = [
 demo = [
     "streamlit>=1.30",
 ]
+service = [
+    "fastapi>=0.135,<0.136",
+    "httpx>=0.27",
+    "joblib>=1.3",
+    "pyyaml>=6.0",
+]
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
@@ -55,7 +61,7 @@ dev = [
     "nbstripout>=0.6",
 ]
 all = [
-    "meshek-ml[simulation,forecasting,optimization,federated,tracking,demo,dev]",
+    "meshek-ml[simulation,forecasting,optimization,federated,tracking,demo,service,dev]",
 ]
 
 [tool.hatch.build.targets.wheel]
