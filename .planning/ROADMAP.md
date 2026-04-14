@@ -24,7 +24,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 **Milestone Goal:** Expose the existing forecast + optimization pipeline as an ML inference service that the meshek app consumes to deliver daily order recommendations.
 
 - [x] **Phase 5: Data Foundation** - Per-merchant SQLite storage, schemas, and merchant profile management ✓
-- [ ] **Phase 6: Recommendation Engine** - Three-tier cold-start recommendation logic with LightGBM startup load
+- [x] **Phase 6: Recommendation Engine** - Three-tier cold-start recommendation logic with LightGBM startup load ✓
 - [ ] **Phase 7: Hebrew Input Parsing** - Dictionary-based Hebrew product name and quantity parsing
 - [ ] **Phase 8: API Surface & Deployment** - FastAPI endpoints wired end-to-end, Docker container for deployment
 
