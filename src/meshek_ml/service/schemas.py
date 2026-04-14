@@ -33,3 +33,24 @@ class HealthResponse(BaseModel):
     status: Literal["ok"] = "ok"
     model_loaded: bool
     version: str
+
+
+# ---------------------------------------------------------------------------
+# Merchants (API-02, plan 08-02)
+# ---------------------------------------------------------------------------
+
+
+class CreateMerchantRequest(BaseModel):
+    """Request body for POST /merchants (D-07, D-13).
+
+    ``merchant_id`` is optional — when omitted the handler generates a
+    uuid4.hex id (32 lowercase hex chars, always valid against
+    ``MerchantIdStr``).  Pydantic validates ``merchant_id`` via
+    ``MerchantIdStr`` *before* any filesystem I/O, enforcing T-5-01.
+
+    ``display_name`` maps to ``MerchantProfile.name`` in the storage layer.
+    ``max_length=128`` mitigates T-8-05 (oversized display_name DoS).
+    """
+
+    merchant_id: MerchantIdStr | None = None
+    display_name: str | None = Field(default=None, max_length=128)
