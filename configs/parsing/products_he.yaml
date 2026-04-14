@@ -1,0 +1,312 @@
+---
+# Seed Hebrew product catalog for Plan 07-02 (D-06).
+# ~30 staple greengrocer products. Each entry carries Hebrew + English display
+# names, a category, a default unit, and a list of raw Hebrew aliases
+# (singular + plural + at least one common misspelling). Aliases are
+# normalized via meshek_ml.parsing.normalize.normalize_text at load time.
+products:
+  - id: tomato
+    display_he: "עגבנייה"
+    display_en: "tomato"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "עגבנייה"
+      - "עגבניה"           # common misspelling (single yod)
+      - "עגבניות"
+      - "עגבניות אדומות"
+
+  - id: cucumber
+    display_he: "מלפפון"
+    display_en: "cucumber"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "מלפפון"
+      - "מלפפונים"
+      - "מלפפפון"          # common doubled-pe misspelling
+
+  - id: bell_pepper
+    display_he: "פלפל"
+    display_en: "bell pepper"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "פלפל"
+      - "פלפלים"
+      - "פלפל אדום"
+      - "פילפל"            # common yod-insertion misspelling
+
+  - id: onion
+    display_he: "בצל"
+    display_en: "onion"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "בצל"
+      - "בצלים"
+      - "בזל"              # common sibilant misspelling
+
+  - id: potato
+    display_he: "תפוח אדמה"
+    display_en: "potato"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "תפוח אדמה"
+      - "תפוחי אדמה"
+      - "תפואד"            # common short-form misspelling
+      - "תפוח האדמה"
+
+  - id: carrot
+    display_he: "גזר"
+    display_en: "carrot"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "גזר"
+      - "גזרים"
+      - "גזרר"             # common doubled-resh misspelling
+
+  - id: lettuce
+    display_he: "חסה"
+    display_en: "lettuce"
+    category: vegetable
+    default_unit: unit
+    aliases:
+      - "חסה"
+      - "חסות"
+      - "חאסה"             # common aleph-insertion misspelling
+
+  - id: parsley
+    display_he: "פטרוזיליה"
+    display_en: "parsley"
+    category: herb
+    default_unit: unit
+    aliases:
+      - "פטרוזיליה"
+      - "פטרוזיליות"
+      - "פטרוסיליה"        # common samekh-for-zayin misspelling
+
+  - id: coriander
+    display_he: "כוסברה"
+    display_en: "coriander"
+    category: herb
+    default_unit: unit
+    aliases:
+      - "כוסברה"
+      - "כוסברות"
+      - "כוזברה"           # common zayin-for-samekh misspelling
+
+  - id: mint
+    display_he: "נענע"
+    display_en: "mint"
+    category: herb
+    default_unit: unit
+    aliases:
+      - "נענע"
+      - "נענעים"
+      - "נענא"             # common aleph-ending misspelling
+
+  - id: lemon
+    display_he: "לימון"
+    display_en: "lemon"
+    category: fruit
+    default_unit: kg
+    aliases:
+      - "לימון"
+      - "לימונים"
+      - "ליימון"           # common doubled-yod misspelling
+
+  - id: orange
+    display_he: "תפוז"
+    display_en: "orange"
+    category: fruit
+    default_unit: kg
+    aliases:
+      - "תפוז"
+      - "תפוזים"
+      - "תפוזז"            # common doubled-zayin misspelling
+
+  - id: banana
+    display_he: "בננה"
+    display_en: "banana"
+    category: fruit
+    default_unit: kg
+    aliases:
+      - "בננה"
+      - "בננות"
+      - "בנאנה"            # common aleph-insertion misspelling
+
+  - id: apple
+    display_he: "תפוח"
+    display_en: "apple"
+    category: fruit
+    default_unit: kg
+    aliases:
+      - "תפוח"
+      - "תפוחים"
+      - "תפוח עץ"
+      - "תפוחים עץ"
+
+  - id: watermelon
+    display_he: "אבטיח"
+    display_en: "watermelon"
+    category: fruit
+    default_unit: unit
+    aliases:
+      - "אבטיח"
+      - "אבטיחים"
+      - "אבטיק"            # common qof-for-het misspelling
+
+  - id: melon
+    display_he: "מלון"
+    display_en: "melon"
+    category: fruit
+    default_unit: unit
+    aliases:
+      - "מלון"
+      - "מלונים"
+      - "ממלון"            # common doubled-mem misspelling
+
+  - id: grape
+    display_he: "ענבים"
+    display_en: "grape"
+    category: fruit
+    default_unit: kg
+    aliases:
+      - "ענב"
+      - "ענבים"
+      - "ענבי"             # common truncated plural
+
+  - id: eggplant
+    display_he: "חציל"
+    display_en: "eggplant"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "חציל"
+      - "חצילים"
+      - "חציליים"          # common doubled-yod plural misspelling
+
+  - id: zucchini
+    display_he: "קישוא"
+    display_en: "zucchini"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "קישוא"
+      - "קישואים"
+      - "קישו"             # common truncated misspelling
+
+  - id: cabbage
+    display_he: "כרוב"
+    display_en: "cabbage"
+    category: vegetable
+    default_unit: unit
+    aliases:
+      - "כרוב"
+      - "כרובים"
+      - "קרוב"             # common qof-for-kaf misspelling
+
+  - id: cauliflower
+    display_he: "כרובית"
+    display_en: "cauliflower"
+    category: vegetable
+    default_unit: unit
+    aliases:
+      - "כרובית"
+      - "כרוביות"
+      - "קרובית"           # common qof-for-kaf misspelling
+
+  - id: garlic
+    display_he: "שום"
+    display_en: "garlic"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "שום"
+      - "שומים"
+      - "שוםם"             # common doubled-final misspelling
+
+  - id: ginger
+    display_he: "ג'ינג'ר"
+    display_en: "ginger"
+    category: spice
+    default_unit: kg
+    aliases:
+      - "ג'ינג'ר"
+      - "ג'ינג'רים"
+      - "זנגביל"
+      - "ג'ינגר"           # common without-apostrophes misspelling
+
+  - id: radish
+    display_he: "צנון"
+    display_en: "radish"
+    category: vegetable
+    default_unit: unit
+    aliases:
+      - "צנון"
+      - "צנונים"
+      - "צנונית"           # common feminine-singular misspelling
+
+  - id: beet
+    display_he: "סלק"
+    display_en: "beet"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "סלק"
+      - "סלקים"
+      - "שלק"              # common shin-for-samekh misspelling
+
+  - id: sweet_potato
+    display_he: "בטטה"
+    display_en: "sweet potato"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "בטטה"
+      - "בטטות"
+      - "בטאטה"            # common aleph-insertion misspelling
+
+  - id: avocado
+    display_he: "אבוקדו"
+    display_en: "avocado"
+    category: fruit
+    default_unit: unit
+    aliases:
+      - "אבוקדו"
+      - "אבוקדואים"
+      - "אווקדו"           # common vav-for-bet misspelling
+
+  - id: strawberry
+    display_he: "תות"
+    display_en: "strawberry"
+    category: fruit
+    default_unit: crate
+    aliases:
+      - "תות"
+      - "תותים"
+      - "תות שדה"
+      - "תותתים"           # common doubled-tav misspelling
+
+  - id: mushroom
+    display_he: "פטרייה"
+    display_en: "mushroom"
+    category: vegetable
+    default_unit: kg
+    aliases:
+      - "פטרייה"
+      - "פטריה"            # common single-yod misspelling
+      - "פטריות"
+
+  - id: corn
+    display_he: "תירס"
+    display_en: "corn"
+    category: vegetable
+    default_unit: unit
+    aliases:
+      - "תירס"
+      - "תירסים"
+      - "טירס"             # common tet-for-tav misspelling
