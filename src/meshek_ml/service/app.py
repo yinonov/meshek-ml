@@ -18,6 +18,7 @@ Design notes:
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncIterator
@@ -28,12 +29,38 @@ from meshek_ml.parsing import DEFAULT_CATALOG_PATH, load_catalog
 from meshek_ml.recommendation.config import load_category_defaults
 from meshek_ml.recommendation.engine import RecommendationEngine
 from meshek_ml.recommendation.pooled_store import PooledStore
+from meshek_ml.service.errors import JSONFormatter, register_exception_handlers
 from meshek_ml.service.lifespan import build_lifespan
+from meshek_ml.service.middleware import RequestContextMiddleware
 from meshek_ml.service.routes import health, merchants, recommend, sales
 from meshek_ml.service.schemas import SERVICE_VERSION
 from meshek_ml.storage import MerchantStore
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Logging configuration (module-level guard — idempotent across create_app calls)
+# ---------------------------------------------------------------------------
+_LOGGING_CONFIGURED = False
+
+
+def _configure_logging() -> None:
+    """Set up JSON structured logging once per process.
+
+    ``logging.basicConfig`` is a no-op after the first call, but we guard
+    with a module-level flag so the explicit ``handlers=`` argument does not
+    silently fail to add the JSONFormatter on subsequent ``create_app()``
+    invocations within the same process (e.g., multiple test fixtures).
+    """
+    global _LOGGING_CONFIGURED  # noqa: PLW0603
+    if _LOGGING_CONFIGURED:
+        return
+    _LOGGING_CONFIGURED = True
+    level_name = os.environ.get("MESHEK_LOG_LEVEL", "info").upper()
+    level = getattr(logging, level_name, logging.INFO)
+    handler = logging.StreamHandler()
+    handler.setFormatter(JSONFormatter())
+    logging.basicConfig(level=level, handlers=[handler], force=False)
 
 _CATEGORY_DEFAULTS_PATH = Path("configs/recommendation/category_defaults.yaml")
 
@@ -117,11 +144,21 @@ def create_app() -> FastAPI:
     ``def`` by design (Common Pitfall 4 — async factories are not supported
     by uvicorn's ``--factory`` flag).
     """
+    _configure_logging()
+
     app = FastAPI(
         title="meshek-ml",
         version=SERVICE_VERSION,
         lifespan=_build_engine_lifespan(),
     )
+
+    # Register exception handlers before routers (order doesn't matter for
+    # handlers but doing it early makes the wiring explicit — plan 05 D-11).
+    register_exception_handlers(app)
+
+    # Structured access logging + request_id injection (plan 05 D-23).
+    app.add_middleware(RequestContextMiddleware)
+
     app.include_router(health.router)
     app.include_router(merchants.router)
     app.include_router(sales.router)

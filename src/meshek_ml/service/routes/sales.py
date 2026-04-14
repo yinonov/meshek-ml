@@ -14,7 +14,8 @@ there so all routes share a single loaded catalog instance (plan 04 migration).
 from __future__ import annotations
 
 import pandas as pd
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 
 from meshek_ml.parsing import (
     ParsedSale,
@@ -81,11 +82,14 @@ def post_sales(body: SalesRequest, request: Request) -> SalesResponse:
                 )
 
         if not accepted:
-            raise HTTPException(
+            return JSONResponse(
                 status_code=422,
-                detail={
-                    "code": "all_lines_failed",
-                    "skipped": [s.model_dump() for s in skipped],
+                content={
+                    "error": {
+                        "code": "all_lines_failed",
+                        "message": "All lines failed to parse",
+                        "details": {"skipped": [s.model_dump() for s in skipped]},
+                    }
                 },
             )
 

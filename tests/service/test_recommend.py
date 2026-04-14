@@ -114,13 +114,12 @@ def test_recommend_invalid_merchant_id(app_client):
 
 
 def test_missing_model(no_model_client, data_dir):
-    """Tier 3 without a loaded model fails with 500 or 503.
-
-    Plan 05 tightens this to == 503 with envelope {error:{code:'model_unavailable'}}.
-    """
+    """Tier 3 without a loaded model → 503 with envelope (plan 05 tightened)."""
     _seed_merchant(data_dir, "deg_t3", days=20)
     resp = no_model_client.post("/recommend", json={"merchant_id": "deg_t3"})
-    assert resp.status_code in (500, 503)  # plan 05 tightens this to == 503
+    assert resp.status_code == 503
+    body = resp.json()
+    assert body["error"]["code"] == "model_unavailable"
 
 
 def test_tier1_in_degraded_mode(no_model_client, data_dir):

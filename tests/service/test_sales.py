@@ -139,7 +139,7 @@ def test_partial(app_client):
 
 
 def test_all_fail(app_client):
-    """POST where all lines fail → 422."""
+    """POST where all lines fail → 422 with error envelope (plan 05 tightened)."""
     # Pre-create merchant
     resp = app_client.post("/merchants", json={"merchant_id": "shop_allfail"})
     assert resp.status_code == 201
@@ -153,10 +153,12 @@ def test_all_fail(app_client):
         },
     )
     assert resp.status_code == 422
+    body = resp.json()
+    assert body["error"]["code"] == "all_lines_failed"
 
 
 def test_sales_unknown_merchant(app_client):
-    """POST against a merchant that was never created → 404 or 500 until plan 05."""
+    """POST against a merchant that was never created → 404 with envelope (plan 05)."""
     resp = app_client.post(
         "/sales",
         json={
@@ -165,5 +167,6 @@ def test_sales_unknown_merchant(app_client):
             "items": [{"product_id": "tomato", "quantity": 10, "unit": "kg"}],
         },
     )
-    # plan 05 will map UnknownMerchantError → 404; until then raw 500 is acceptable
-    assert resp.status_code in (404, 500)
+    assert resp.status_code == 404
+    body = resp.json()
+    assert body["error"]["code"] == "merchant_not_found"
