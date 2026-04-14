@@ -1,6 +1,6 @@
 """Frozen product catalog with a prebuilt normalized alias index (D-03..D-06).
 
-Loaded once from ``configs/parsing/products_he.yaml`` via :func:`load_catalog`.
+Loaded once from the packaged ``data/products_he.yaml`` via :func:`load_catalog`.
 Every alias (plus implicit ``display_he`` / ``display_en``) is passed through
 :func:`meshek_ml.parsing.normalize.normalize_text` at build time so runtime
 resolution is a single ``dict.get`` (see Plan 03's greedy matcher).
@@ -13,6 +13,7 @@ Duplicate normalized aliases across different products raise
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from importlib.resources import files as _pkg_files
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any
@@ -30,11 +31,31 @@ __all__ = [
 ]
 
 
-# Repo-root-relative default catalog location. ``parents[3]`` walks
-# ``catalog.py`` → ``parsing`` → ``meshek_ml`` → ``src`` → repo root.
-DEFAULT_CATALOG_PATH: Path = (
-    Path(__file__).resolve().parents[3] / "configs" / "parsing" / "products_he.yaml"
-)
+def _resolve_default_catalog_path() -> Path:
+    """Locate ``products_he.yaml`` across both wheel and editable layouts.
+
+    Preferred: packaged resource at ``meshek_ml/parsing/data/products_he.yaml``
+    resolved via :mod:`importlib.resources`, which works for wheels installed
+    into ``site-packages`` (MD-01).
+
+    Fallback: the legacy repo-root ``configs/parsing/products_he.yaml`` path,
+    kept as a safety net for older editable checkouts where the YAML has not
+    yet been moved into the package tree.
+    """
+    try:
+        packaged = _pkg_files("meshek_ml.parsing").joinpath("data/products_he.yaml")
+        packaged_path = Path(str(packaged))
+        if packaged_path.is_file():
+            return packaged_path
+    except (ModuleNotFoundError, FileNotFoundError, TypeError):
+        pass
+
+    # Editable-install safety net: repo-root ``configs/parsing`` layout.
+    legacy = Path(__file__).resolve().parents[3] / "configs" / "parsing" / "products_he.yaml"
+    return legacy
+
+
+DEFAULT_CATALOG_PATH: Path = _resolve_default_catalog_path()
 
 
 class CatalogError(ValueError):
