@@ -134,10 +134,9 @@ def parse_sales_line(text: str, catalog: ProductCatalog) -> ParsedSale | ParseEr
     if len(numbers) >= 2:
         return _err("ambiguous_quantity", text)
 
-    try:
-        quantity = float(numbers[0])
-    except ValueError:
-        return _err("bad_quantity", text)
+    # _NUMBER_RE only matches ``\d+(?:\.\d+)?``, so every captured token is
+    # already a valid float literal — no ValueError possible here (LW-01).
+    quantity = float(numbers[0])
     if quantity <= 0:
         return _err("bad_quantity", text)
 
