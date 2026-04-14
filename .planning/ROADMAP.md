@@ -66,7 +66,12 @@ Plans:
   1. Hebrew product names including singular and plural forms and common misspellings are resolved to the correct canonical product ID
   2. A quantity and unit can be extracted from Hebrew free text regardless of whether the number precedes or follows the product name (e.g., "20 עגבניות" and "עגבניות 20" both parse correctly)
   3. An unrecognised Hebrew string returns a structured parse error rather than silently producing a wrong product ID
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 07-01-PLAN.md — Wave 1: parsing.normalize (Unit enum, niqqud strip, final-letter fold, unit aliases)
+- [ ] 07-02-PLAN.md — Wave 2: parsing.catalog + configs/parsing/products_he.yaml seed (~30 products)
+- [ ] 07-03-PLAN.md — Wave 3: parsing.parser (ParsedSale, ParseError, order-invariant parse_sales_line)
+- [ ] 07-04-PLAN.md — Wave 4: public package API + D-18 integration tests against real seed catalog
 
 ### Phase 8: API Surface & Deployment
 **Goal**: The meshek app can call all four endpoints over HTTP and the service can be deployed as a Docker container
