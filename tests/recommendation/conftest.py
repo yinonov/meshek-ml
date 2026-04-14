@@ -1,6 +1,7 @@
 """Shared fixtures for Phase 6 recommendation tests."""
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -63,3 +64,33 @@ def category_defaults_cfg() -> CategoryDefaultsConfig:
     return load_category_defaults(
         Path("configs/recommendation/category_defaults.yaml")
     )
+
+
+@pytest.fixture(scope="session")
+def trained_model_bundle(tmp_path_factory):
+    """Session-scoped Tier 3 LightGBM bundle trained on synthetic data.
+
+    Sets MESHEK_MODELS_DIR manually (session scope cannot use the
+    function-scoped ``monkeypatch`` fixture) and restores any prior value
+    on teardown.
+    """
+    from meshek_ml.recommendation.training import train_and_save
+    from meshek_ml.simulation.generator import run_simulation
+
+    root = tmp_path_factory.mktemp("models-session")
+    prev = os.environ.get("MESHEK_MODELS_DIR")
+    os.environ["MESHEK_MODELS_DIR"] = str(root)
+    try:
+        data = run_simulation(
+            n_merchants=3,
+            start_date="2024-01-01",
+            end_date="2024-03-31",
+            seed=42,
+        )
+        bundle = train_and_save(root / "tier3.bundle", data)
+        yield bundle
+    finally:
+        if prev is None:
+            os.environ.pop("MESHEK_MODELS_DIR", None)
+        else:
+            os.environ["MESHEK_MODELS_DIR"] = prev
