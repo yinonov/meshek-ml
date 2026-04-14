@@ -24,7 +24,7 @@ from typing import AsyncIterator
 from fastapi import FastAPI
 
 from meshek_ml.service.lifespan import build_lifespan
-from meshek_ml.service.routes import health, merchants
+from meshek_ml.service.routes import health, merchants, sales
 from meshek_ml.service.schemas import SERVICE_VERSION
 
 logger = logging.getLogger(__name__)
@@ -72,4 +72,5 @@ def create_app() -> FastAPI:
     )
     app.include_router(health.router)
     app.include_router(merchants.router)
+    app.include_router(sales.router)
     return app

@@ -4,9 +4,10 @@ Plans 02-04 append additional models to this file.
 """
 from __future__ import annotations
 
+from datetime import date
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 # ---------------------------------------------------------------------------
 # Shared types
@@ -54,3 +55,53 @@ class CreateMerchantRequest(BaseModel):
 
     merchant_id: MerchantIdStr | None = None
     display_name: str | None = Field(default=None, max_length=128)
+
+
+# ---------------------------------------------------------------------------
+# Sales (API-03, plan 08-03)
+# ---------------------------------------------------------------------------
+
+
+class SalesItem(BaseModel):
+    """A single structured sales line item."""
+
+    product_id: str = Field(min_length=1, max_length=64)
+    quantity: float = Field(gt=0)
+    unit: str = "unit"
+
+
+class SkippedLine(BaseModel):
+    """A line that failed to parse, included in partial-success responses."""
+
+    line: str
+    reason: str
+
+
+class SalesRequest(BaseModel):
+    """Request body for POST /sales (D-08, API-03).
+
+    Exactly one of ``items`` or ``text`` must be provided:
+    - ``items``: structured list of sale line items
+    - ``text``: Hebrew free text, routed through the Phase 7 parser
+
+    ``merchant_id`` validated via ``MerchantIdStr`` (T-5-01).
+    ``text`` capped at 2048 chars matching the parser cap (T-7-02).
+    """
+
+    merchant_id: MerchantIdStr
+    date: date
+    items: list[SalesItem] | None = None
+    text: str | None = Field(default=None, max_length=2048)
+
+    @model_validator(mode="after")
+    def exactly_one_of_items_or_text(self) -> "SalesRequest":
+        if (self.items is None) == (self.text is None):
+            raise ValueError("Exactly one of 'items' or 'text' must be provided")
+        return self
+
+
+class SalesResponse(BaseModel):
+    """Response body for POST /sales (D-08)."""
+
+    accepted_rows: int
+    skipped: list[SkippedLine] = Field(default_factory=list)
