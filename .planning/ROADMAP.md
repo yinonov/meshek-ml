@@ -69,7 +69,7 @@ Plans:
 **Plans:** 4 plans
 Plans:
 - [ ] 07-01-PLAN.md — Wave 1: parsing.normalize (Unit enum, niqqud strip, final-letter fold, unit aliases)
-- [ ] 07-02-PLAN.md — Wave 2: parsing.catalog + configs/parsing/products_he.yaml seed (~30 products)
+- [x] 07-02-PLAN.md — Wave 2: parsing.catalog + configs/parsing/products_he.yaml seed (~30 products)
 - [ ] 07-03-PLAN.md — Wave 3: parsing.parser (ParsedSale, ParseError, order-invariant parse_sales_line)
 - [ ] 07-04-PLAN.md — Wave 4: public package API + D-18 integration tests against real seed catalog
 
