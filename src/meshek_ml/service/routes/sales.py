@@ -1,42 +1,29 @@
 """POST /sales handler — dual-shape: structured items or Hebrew free text.
 
-Plan 08-03, API-03, D-08.
+Plan 08-03, API-03, D-08.  Catalog migration to app.state.catalog: plan 08-04.
 
 Partial-success semantics:
 - Each failing free-text line is reported in ``skipped[]`` but the request
   still returns 200 as long as at least one line parsed.
 - If ALL lines fail, return 422.
 
-TODO: migrate to app.state.catalog in plan 04 (replace _get_catalog() call
-      with ``request.app.state.catalog`` once the lifespan populates it).
+The parser catalog is loaded once at startup by ``_build_engine_lifespan``
+in app.py and stored on ``app.state.catalog``.  This route reads it from
+there so all routes share a single loaded catalog instance (plan 04 migration).
 """
 from __future__ import annotations
-
-from functools import lru_cache
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Request
 
 from meshek_ml.parsing import (
-    DEFAULT_CATALOG_PATH,
     ParsedSale,
-    load_catalog,
     parse_sales_lines,
 )
 from meshek_ml.service.schemas import SalesRequest, SalesResponse, SkippedLine
 from meshek_ml.storage.merchant_store import MerchantStore
 
 router = APIRouter()
-
-
-@lru_cache(maxsize=1)
-def _get_catalog():
-    """Module-level cached catalog load.
-
-    Loaded once on first request.  Plan 04 will switch this to
-    ``request.app.state.catalog`` populated by the lifespan.
-    """
-    return load_catalog(DEFAULT_CATALOG_PATH)
 
 
 @router.post("/sales", response_model=SalesResponse)
@@ -69,8 +56,7 @@ def post_sales(body: SalesRequest, request: Request) -> SalesResponse:
         return SalesResponse(accepted_rows=n, skipped=[])
     else:
         # --- free-text path ---
-        # TODO: migrate to app.state.catalog in plan 04
-        catalog = _get_catalog()
+        catalog = request.app.state.catalog
 
         # Split on comma, strip whitespace, drop empty segments
         raw_lines = [seg.strip() for seg in (body.text or "").split(",")]

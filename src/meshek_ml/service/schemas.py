@@ -105,3 +105,18 @@ class SalesResponse(BaseModel):
 
     accepted_rows: int
     skipped: list[SkippedLine] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Recommend (API-04, plan 08-04)
+# ---------------------------------------------------------------------------
+
+
+class RecommendRequest(BaseModel):
+    """Request body for POST /recommend (D-09, API-04).
+
+    ``merchant_id`` validated via ``MerchantIdStr`` (T-5-01) so path-traversal
+    is rejected at 422 before any filesystem I/O.
+    """
+
+    merchant_id: MerchantIdStr
