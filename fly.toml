@@ -1,0 +1,33 @@
+app = "meshek-ml"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  MESHEK_API_HOST = "0.0.0.0"
+  MESHEK_API_PORT = "8000"
+  MESHEK_LOG_LEVEL = "info"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    path = "/health"
+    method = "GET"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "15s"
+
+[[vm]]
+  memory = "512mb"
+  cpus = 1
+
+[[mounts]]
+  source = "meshek_data"
+  destination = "/var/lib/meshek/merchants"
+  initial_size = "1gb"

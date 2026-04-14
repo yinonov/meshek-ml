@@ -1,0 +1,16 @@
+.venv
+.git
+.gitignore
+.planning
+notebooks
+reports
+outputs
+data
+academic
+tests
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.DS_Store
+*.egg-info
