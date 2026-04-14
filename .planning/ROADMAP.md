@@ -55,7 +55,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 Plans:
 - [x] 06-01-PLAN.md — Wave 1: contracts, configs, schemas, service extra, public storage helper
 - [x] 06-02-PLAN.md — Wave 2: Tier 1 category defaults + Tier 2 pooled priors + PooledStore
-- [ ] 06-03-PLAN.md — Wave 3: LightGBM train_and_save + safe model_io + Tier 3 inference
+- [x] 06-03-PLAN.md — Wave 3: LightGBM train_and_save + safe model_io + Tier 3 inference
 - [ ] 06-04-PLAN.md — Wave 4: RecommendationEngine façade + FastAPI lifespan factory + e2e tests
 
 ### Phase 7: Hebrew Input Parsing

@@ -18,7 +18,7 @@ Requirements for Merchant Order Advisor milestone. Each maps to roadmap phases.
 
 - [x] **REC-01**: New merchant with no history receives recommendations based on product category defaults (Tier 1)
 - [x] **REC-02**: Merchant with limited history receives recommendations using cross-merchant pooled priors (Tier 2)
-- [ ] **REC-03**: Merchant with 14+ days of sales history receives ML-forecasted recommendations via LightGBM pipeline (Tier 3)
+- [x] **REC-03**: Merchant with 14+ days of sales history receives ML-forecasted recommendations via LightGBM pipeline (Tier 3)
 - [x] **REC-04**: Every recommendation response includes `reasoning_tier` and `confidence_score`
 
 ### Hebrew Parsing
@@ -33,7 +33,7 @@ Requirements for Merchant Order Advisor milestone. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: LightGBM model loads once at startup via FastAPI lifespan (not per-request)
+- [x] **INFRA-01**: LightGBM model loads once at startup via FastAPI lifespan (not per-request)
 - [ ] **INFRA-02**: Service runs in a Docker container deployable to Railway/Fly.io
 
 ## v2 Requirements
@@ -82,13 +82,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-04 | Phase 8 | Pending |
 | REC-01 | Phase 6 | Complete |
 | REC-02 | Phase 6 | Complete |
-| REC-03 | Phase 6 | Pending |
+| REC-03 | Phase 6 | Complete |
 | REC-04 | Phase 6 | Complete |
 | PARSE-01 | Phase 7 | Pending |
 | PARSE-02 | Phase 7 | Pending |
 | STOR-01 | Phase 5 | Complete |
 | STOR-02 | Phase 5 | Complete |
-| INFRA-01 | Phase 6 | Pending |
+| INFRA-01 | Phase 6 | Complete |
 | INFRA-02 | Phase 8 | Pending |
 
 **Coverage:**
