@@ -84,6 +84,14 @@ Plans:
   4. `POST /recommend` returns per-product order quantities with reasoning tier and confidence score for any merchant
   5. The service starts and handles requests correctly inside a Docker container deployable to Railway or Fly.io
 **UI hint**: no
+**Plans:** 6 plans
+Plans:
+- [ ] 08-01-PLAN.md — Wave 1: create_app factory + /health (+ Wave 0 scaffolding, uvicorn/lightgbm deps, degraded-start contract)
+- [ ] 08-02-PLAN.md — Wave 1: POST /merchants (regex-validated merchant_id, auto-uuid4 id)
+- [ ] 08-03-PLAN.md — Wave 2: POST /sales (structured items + Hebrew free-text partial-success)
+- [ ] 08-04-PLAN.md — Wave 2: POST /recommend (lifespan-cached engine, all three tiers)
+- [ ] 08-05-PLAN.md — Wave 3: central exception handlers + error envelope + structured JSON request logs
+- [ ] 08-06-PLAN.md — Wave 3: Dockerfile + .dockerignore + fly.toml + env-guarded Docker smoke test
 
 ## Progress
 
