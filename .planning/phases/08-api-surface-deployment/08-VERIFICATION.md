@@ -1,18 +1,19 @@
 ---
 phase: 8
 slug: api-surface-deployment
-status: human_needed
-must_haves_verified: 4
+status: passed
+must_haves_verified: 5
 must_haves_total: 5
 date: 2026-04-15
+docker_smoke_run: 2026-04-15T07:07
 human_verification:
-  - test: "Run `docker build -t meshek-ml-test . && docker run --rm -p 18000:8000 -e MESHEK_DATA_DIR=/tmp/merchants meshek-ml-test` and curl http://localhost:18000/health"
-    expected: "HTTP 200 or 503 within 15 seconds of container start; container does not crash"
-    why_human: "No Docker daemon accessible during automated verification. The smoke test scaffolding (tests/service/test_docker_smoke.py) is guarded by MESHEK_DOCKER_SMOKE=1 and correctly skipped in normal runs. Image correctness — layer ordering, uv sync --locked, non-root appuser, ENV defaults — cannot be verified without building the image."
   - test: "Deploy to Fly.io from a clean checkout: `fly deploy` in repo root"
     expected: "`fly deploy` succeeds; `fly open /health` returns 200 once a model bundle is in place (or 503 if using degraded-start)"
-    why_human: "Actual cloud deployment requires a Fly.io account, flyctl, and a live cluster. Cannot be automated in a code-only verification pass."
+    why_human: "Actual cloud deployment requires a Fly.io account, flyctl, and a live cluster. Not blocking — Dockerfile/fly.toml are verified locally and the image runs end-to-end."
 ---
+
+> **Update 2026-04-15:** Docker smoke test executed locally (`MESHEK_DOCKER_SMOKE=1 pytest`) and passed. End-to-end verification inside a running container confirmed: `GET /health` → 503 degraded, `POST /merchants` → 201, `POST /sales` with Hebrew free-text (`"20 עגבניות, 5 מלפפונים"`) → 200 `{accepted_rows: 2}`, `POST /recommend` → 200 `{reasoning_tier: "pooled_prior", confidence_score: 0.3}`. Two Dockerfile/test fixes landed in commit `dad8f6d` (README copy, project install layer, HTTPError handling). Status promoted to **passed**. Fly.io deploy remains as a documented manual step.
+
 
 # Phase 8: API Surface & Deployment — Verification Report
 
