@@ -19,6 +19,7 @@ PROJECT="${PROJECT:-meshek-prod}"
 REGION="${REGION:-me-west1}"
 AR_REPO_NAME="meshek"
 BUCKET="meshek-prod-merchants"
+MODELS_BUCKET="meshek-prod-models"
 SA_NAME="meshek-ml-run"
 SA_EMAIL="${SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
 DRY_RUN="${DRY_RUN:-0}"
@@ -110,5 +111,40 @@ run gcloud storage buckets add-iam-policy-binding "gs://${BUCKET}" \
   --project="${PROJECT}" \
   --member="serviceAccount:${SA_EMAIL}" \
   --role="roles/storage.objectUser"
+
+echo "==> Ensuring GCS bucket gs://${MODELS_BUCKET} in ${REGION} (versioning on, 90d lifecycle)"
+if ! gcloud storage buckets describe "gs://${MODELS_BUCKET}" --project="${PROJECT}" >/dev/null 2>&1; then
+  run gcloud storage buckets create "gs://${MODELS_BUCKET}" \
+    --location="${REGION}" \
+    --project="${PROJECT}" \
+    --uniform-bucket-level-access
+  run gcloud storage buckets update "gs://${MODELS_BUCKET}" \
+    --project="${PROJECT}" \
+    --versioning
+  # Lifecycle rule: delete non-current versions after 90 days
+  MODELS_LIFECYCLE_JSON="$(mktemp)"
+  cat >"${MODELS_LIFECYCLE_JSON}" <<'JSON'
+{
+  "rule": [
+    {
+      "action": {"type": "Delete"},
+      "condition": {"daysSinceNoncurrentTime": 90, "isLive": false}
+    }
+  ]
+}
+JSON
+  run gcloud storage buckets update "gs://${MODELS_BUCKET}" \
+    --project="${PROJECT}" \
+    --lifecycle-file="${MODELS_LIFECYCLE_JSON}"
+  rm -f "${MODELS_LIFECYCLE_JSON}"
+else
+  echo "    (exists)"
+fi
+
+echo "==> Granting roles/storage.objectViewer on gs://${MODELS_BUCKET} to ${SA_EMAIL}"
+run gcloud storage buckets add-iam-policy-binding "gs://${MODELS_BUCKET}" \
+  --project="${PROJECT}" \
+  --member="serviceAccount:${SA_EMAIL}" \
+  --role="roles/storage.objectViewer"
 
 echo "==> Bootstrap complete."
