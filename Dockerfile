@@ -45,4 +45,7 @@ ENV MESHEK_DATA_DIR=/var/lib/meshek/merchants \
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status in (200,503) else 1)" || exit 1
 
-CMD ["uvicorn", "meshek_ml.service.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+# Shell-form CMD so ${PORT:-8000} expands at container start. Cloud Run injects
+# PORT=8080 (D-23); Fly.io does not inject PORT, so the :-8000 default preserves
+# the Fly.io contract (D-25).
+CMD uvicorn meshek_ml.service.app:create_app --factory --host 0.0.0.0 --port ${PORT:-8000}
