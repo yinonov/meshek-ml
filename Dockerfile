@@ -1,5 +1,13 @@
 FROM python:3.12-slim
 
+# LightGBM dlopens libgomp.so.1 (OpenMP runtime) at import time.
+# python:3.12-slim ships without it, so ctypes.cdll.LoadLibrary raises
+# "libgomp.so.1: cannot open shared object file" during model load.
+# Installing libgomp1 fixes Tier 3 recommendations.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install uv from the official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
