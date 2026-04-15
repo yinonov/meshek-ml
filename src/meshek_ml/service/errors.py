@@ -199,6 +199,7 @@ class JSONFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         payload: dict = {
             "level": record.levelname,
+            "severity": record.levelname,  # Cloud Logging auto-structures this field (D-23 discretion)
             "name": record.name,
             "message": record.getMessage(),
             "time": self.formatTime(record, self.datefmt),
