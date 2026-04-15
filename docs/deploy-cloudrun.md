@@ -313,3 +313,174 @@ Cloud Build triggers are deferred to a future milestone (D-37).
 `fly.toml` is kept in the repository and is not deprecated by Phase 8.1.
 Cloud Run is the primary production target; Fly.io remains a documented
 fallback if Cloud Run has an availability issue in `me-west1`.
+
+---
+
+## 9. Training and publishing a model bundle
+
+This section covers the offline model training workflow: how to train a
+LightGBM bundle from synthetic seed data, publish it to GCS, and confirm
+the live service picks it up. A new engineer should be able to complete
+the end-to-end flow in under 5 minutes with only this section open.
+
+### 9.1 Prerequisites
+
+Before running the training workflow, confirm:
+
+- **Authenticated `gcloud`** as an operator principal with write access on
+  `gs://meshek-prod-models` (project owner, or a principal with
+  `roles/storage.objectUser` on that bucket).
+- **`.venv` activated** so `python -m meshek_ml.recommendation.cli_train`
+  is importable:
+  ```bash
+  source .venv/bin/activate
+  ```
+- **`./scripts/bootstrap-cloudrun.sh` has been run at least once** on the
+  target project. Bootstrap creates `gs://meshek-prod-models` with
+  versioning on and a 90-day non-current lifecycle rule (D-04). The
+  bucket must exist before `train-and-publish-model.sh` can upload.
+
+### 9.2 The three-command flow (D-18)
+
+```bash
+./scripts/bootstrap-cloudrun.sh          # one-time, idempotent (D-04)
+./scripts/train-and-publish-model.sh     # train + upload to gs://meshek-prod-models
+./scripts/deploy-cloudrun.sh             # redeploy with both FUSE mounts (D-06)
+```
+
+Expected outcome after the third command:
+
+- `GET /health` returns 200 with `"model_loaded": true`.
+- `POST /recommend` for a merchant with ≥14 days of seeded sales history
+  returns `"reasoning_tier": "ml_forecast"` (Tier 3 ML inference).
+
+### 9.3 Reproducibility expectations (D-11)
+
+Running `train-and-publish-model.sh` twice with the same seed produces
+bundles whose `feature_cols` list is byte-identical and whose `residual_std`
+matches to within 1e-6. This is enforced by
+`tests/recommendation/test_model_bundle.py::test_deterministic_rerun`.
+
+Default training parameters:
+
+| Env var | Default | Effect |
+|---------|---------|--------|
+| `MESHEK_TRAIN_SEED` | `42` | NumPy RNG seed for synthetic data generation |
+| `MESHEK_TRAIN_N_MERCHANTS` | `20` | Number of synthetic merchants to simulate |
+| `MESHEK_TRAIN_DAYS` | `180` | Days of sales history per merchant |
+
+The seed is the only input that matters for reproducibility. Setting a
+global `numpy.random.seed()` is not required — `run_simulation()` uses
+`np.random.default_rng(seed)` which is independent of the legacy global.
+
+### 9.4 Local / dry-run modes (D-13)
+
+Use these modes to verify the training pipeline without committing to a
+production upload.
+
+**`LOCAL_ONLY=1` — train locally, skip GCS upload:**
+
+```bash
+LOCAL_ONLY=1 ./scripts/train-and-publish-model.sh
+```
+
+Trains the bundle and writes it to `models/lightgbm_v1.bundle` (or
+`MESHEK_TRAIN_OUTPUT`). No GCS operations. Use for smoke tests before
+committing to a production upload. The bundle is load-verified in place.
+
+**`DRY_RUN=1` — print the upload command without executing it:**
+
+```bash
+DRY_RUN=1 ./scripts/train-and-publish-model.sh
+```
+
+Prints the exact `gcloud storage cp` command the script would run, then
+exits 0. Use to preview the upload destination before a real run.
+
+**Custom parameters:**
+
+```bash
+LOCAL_ONLY=1 MESHEK_TRAIN_N_MERCHANTS=5 MESHEK_TRAIN_DAYS=30 \
+  ./scripts/train-and-publish-model.sh
+```
+
+### 9.5 Inspecting GCS generations
+
+Each run of `train-and-publish-model.sh` creates a new object generation
+in `gs://meshek-prod-models`. The previous generation is preserved for 90
+days by the bucket lifecycle rule (D-03) — no manual action needed.
+
+List all preserved versions of the bundle:
+
+```bash
+gcloud storage objects list "gs://meshek-prod-models/lightgbm_v1.bundle" \
+  --all-versions \
+  --format='table(generation,timeCreated,size)'
+```
+
+The script also prints the generation number immediately after upload:
+
+```
+==> Published generation: 1748123456789012
+    Rollback hint: gs://meshek-prod-models/lightgbm_v1.bundle#1748123456789012
+```
+
+Keep this generation number handy if you may need to roll back.
+
+### 9.6 Rolling back to a prior bundle (D-22)
+
+To roll back the live model to an earlier generation, copy that generation
+back as the live object (copy-in-place):
+
+```bash
+PRIOR_GENERATION=1748123456789012   # from the list command above
+gcloud storage cp \
+  "gs://meshek-prod-models/lightgbm_v1.bundle#${PRIOR_GENERATION}" \
+  "gs://meshek-prod-models/lightgbm_v1.bundle" \
+  --cache-control=no-cache
+```
+
+Then force a new Cloud Run revision to pick up the restored bundle (see
+Section 9.7).
+
+**Important:** `gcloud storage restore` does NOT work for this rollback
+(Pitfall 5 from research). `gcloud storage restore` restores soft-deleted
+objects, not historical generations. The copy-in-place above is the only
+supported rollback path for versioned generations. Running it leaves the
+prior generation intact — GCS versioning guarantees it.
+
+### 9.7 Forcing a model refresh (D-19)
+
+Cloud Run caches the GCS FUSE mount per revision. After uploading a new
+bundle (or rolling back via Section 9.6), force a new revision with a
+no-op update:
+
+```bash
+gcloud run services update meshek-ml \
+  --region me-west1 \
+  --project meshek-prod
+```
+
+No image rebuild required. The new revision cold-starts against the latest
+generation in `gs://meshek-prod-models`.
+
+**Complete rollback flow = copy-in-place (9.6) + no-op revision bump (9.7).**
+Forgetting the revision bump is the most common operator mistake — the
+FUSE mount caches the old generation until a new revision starts.
+
+### 9.8 Why objectViewer and not objectUser (D-23)
+
+The Cloud Run service account
+(`meshek-ml-run@meshek-prod.iam.gserviceaccount.com`) is granted
+`roles/storage.objectViewer` on `gs://meshek-prod-models` — read-only
+access. This is intentional.
+
+Training is an offline operator action that runs from your local workstation
+using your own GCP credentials. The service never writes to the models
+bucket. Combined with `readonly=true` on the GCS FUSE volume mount (D-07),
+this is defense-in-depth: even a service bug that attempts to write to
+`/app/models` will fail at the OS level before any GCS API call is made.
+This directly addresses threat T-9-01 from the Phase 9 threat model —
+an attacker with service code execution cannot corrupt the production model
+bundle, because the service account lacks write permissions and the mount
+is read-only.
