@@ -168,3 +168,37 @@ def test_unknown_merchant(app_client):
     assert "error" in body
     assert body["error"]["code"] == "merchant_not_found"
     assert isinstance(body["error"]["message"], str)
+
+
+# ---------------------------------------------------------------------------
+# Cloud Logging severity field — Task 8.1-02-03
+# ---------------------------------------------------------------------------
+
+
+def test_jsonformatter_emits_cloud_logging_severity():
+    import json
+
+    from meshek_ml.service.errors import JSONFormatter
+
+    fmt = JSONFormatter()
+    record = logging.LogRecord(
+        name="t", level=logging.ERROR, pathname=__file__, lineno=1,
+        msg="boom", args=(), exc_info=None,
+    )
+    payload = json.loads(fmt.format(record))
+    assert payload["severity"] == "ERROR"
+    assert payload["level"] == "ERROR"  # legacy field preserved
+
+
+def test_jsonformatter_severity_info_case():
+    import json
+
+    from meshek_ml.service.errors import JSONFormatter
+
+    fmt = JSONFormatter()
+    record = logging.LogRecord(
+        name="t", level=logging.INFO, pathname=__file__, lineno=1,
+        msg="hello", args=(), exc_info=None,
+    )
+    payload = json.loads(fmt.format(record))
+    assert payload["severity"] == "INFO"
