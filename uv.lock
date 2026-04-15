@@ -2773,6 +2773,7 @@ all = [
     { name = "pytest-cov" },
     { name = "pyyaml" },
     { name = "ruff" },
+    { name = "scikit-learn" },
     { name = "stable-baselines3", extra = ["extra"] },
     { name = "streamlit" },
     { name = "torch" },
@@ -2808,6 +2809,7 @@ optimization = [
 ]
 runtime = [
     { name = "lightgbm" },
+    { name = "scikit-learn" },
 ]
 service = [
     { name = "fastapi" },
@@ -2848,6 +2850,7 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1" },
     { name = "pyyaml", marker = "extra == 'service'", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.3" },
+    { name = "scikit-learn", marker = "extra == 'runtime'", specifier = ">=1.3" },
     { name = "scipy", specifier = ">=1.11" },
     { name = "seaborn", specifier = ">=0.12" },
     { name = "stable-baselines3", extras = ["extra"], marker = "extra == 'optimization'", specifier = ">=2.2" },

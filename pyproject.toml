@@ -55,6 +55,9 @@ service = [
 ]
 runtime = [
     "lightgbm>=4.0",
+    # LightGBM's LGBMRegressor (sklearn API) requires scikit-learn at inference.
+    # Without this, model.predict raises "scikit-learn is required for lightgbm.sklearn".
+    "scikit-learn>=1.3",
 ]
 dev = [
     "pytest>=7.4",
