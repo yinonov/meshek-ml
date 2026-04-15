@@ -35,7 +35,12 @@ Requirements for Merchant Order Advisor milestone. Each maps to roadmap phases.
 
 - [x] **INFRA-01**: LightGBM model loads once at startup via FastAPI lifespan (not per-request)
 - [x] **INFRA-02**: Service runs in a Docker container deployable to Railway/Fly.io
-- [ ] **INFRA-03**: Service runs on Google Cloud Run in the `meshek-prod` GCP project with per-merchant SQLite files persisted via a GCS FUSE volume mount
+- [x] **INFRA-03**: Service runs on Google Cloud Run in the `meshek-prod` GCP project with per-merchant SQLite files persisted via a GCS FUSE volume mount
+
+### Model Lifecycle
+
+- [ ] **MODEL-01**: Service starts in non-degraded mode (`/health` → 200) with a LightGBM bundle loaded from the configured source
+- [ ] **MODEL-02**: Model bundle is reproducibly trainable from synthetic seed data and uploadable to `gs://meshek-prod-models` via a single script
 
 ## v2 Requirements
 
@@ -91,14 +96,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOR-02 | Phase 5 | Complete |
 | INFRA-01 | Phase 6 | Complete |
 | INFRA-02 | Phase 8 | Complete |
-| INFRA-03 | Phase 8.1 | Pending |
+| INFRA-03 | Phase 8.1 | Complete |
+| MODEL-01 | Phase 9 | Pending |
+| MODEL-02 | Phase 9 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 15 total
-- Mapped to phases: 15
-- Satisfied: 13 (all except API-01..API-04 mapped to Phase 8 which is now complete, plus INFRA-03 pending)
+- v1.1 requirements: 17 total
+- Mapped to phases: 17
+- Satisfied: 15 (Phases 5, 6, 7, 8, 8.1 complete; Phase 9 pending)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-10*
-*Last updated: 2026-04-15 — INFRA-03 added, INFRA-02 promoted to complete after Phase 8*
+*Last updated: 2026-04-15 — added MODEL-01/02 for Phase 9; INFRA-03 promoted to complete*

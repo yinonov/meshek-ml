@@ -123,3 +123,22 @@ Plans:
 
 Plans:
 - [x] TBD (run /gsd-plan-phase 8.1 to break down) (completed 2026-04-15)
+
+### Phase 9: Model Bundle Pipeline
+**Goal**: A LightGBM model bundle is reproducibly trainable from synthetic seed data via a single script, published to a versioned GCS location, and loaded by Cloud Run at startup so `/health` flips to 200 and Tier 3 ML-forecasted recommendations work end-to-end.
+**Depends on**: Phase 8.1
+**Requirements**: MODEL-01, MODEL-02
+**Success Criteria** (what must be TRUE):
+  1. `scripts/train-and-publish-model.sh` (or equivalent) trains a model via `meshek_ml.recommendation.training.train_and_save()` using deterministic seed data and produces `lightgbm_v1.bundle` reproducibly
+  2. The same script uploads the bundle to `gs://meshek-prod-models/lightgbm_v1.bundle` (idempotent, versioned via GCS versioning + a `:latest` symlink object or generation pinning)
+  3. Cloud Run loads the model at startup — either by mounting `gs://meshek-prod-models` as a second GCS FUSE volume at `/app/models` and pointing `MESHEK_MODEL_PATH` there, OR by downloading the bundle in a startup hook before the FastAPI lifespan reads it
+  4. `GET /health` on the redeployed service returns **200** with `{model_loaded: true}` (no longer degraded)
+  5. `POST /recommend` for a merchant with ≥14 days of seeded sales returns `reasoning_tier: "ml_forecast"` (Tier 3 path exercised end-to-end)
+  6. A regression test (`tests/recommendation/test_model_bundle.py`) loads the bundle produced by the script and asserts `feature_cols`, `residual_std`, and `model.predict` shape
+  7. `docs/deploy-cloudrun.md` updated with the train-and-publish step in the bootstrap section
+
+**Out of scope** (deferred): per-merchant model retraining (REC-05/v2), federated training (OPT-02/v2), model registry / experiment tracking (Trackio is wired but not gated), async retrain endpoint
+**UI hint**: no
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 9 to break down)
