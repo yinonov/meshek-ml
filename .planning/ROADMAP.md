@@ -105,3 +105,21 @@ Plans:
 | 6. Recommendation Engine | v1.1 | 0/? | Not started | - |
 | 7. Hebrew Input Parsing | v1.1 | 4/4 | Complete | 2026-04-14 |
 | 8. API Surface & Deployment | v1.1 | 6/6 | Complete   | 2026-04-14 |
+
+### Phase 8.1: Cloud Run Deployment (INSERTED)
+**Goal**: The meshek-ml service runs on Google Cloud Run in the existing `meshek-prod` GCP project with per-merchant SQLite files persisted across container restarts via a GCS FUSE mount, deployable with a single `gcloud` command.
+**Depends on**: Phase 8
+**Requirements**: INFRA-03
+**Success Criteria** (what must be TRUE):
+  1. `scripts/deploy-cloudrun.sh` deploys the image to Cloud Run in the `meshek-prod` project / `me-west1` region via Artifact Registry, returning a live URL
+  2. A GCS bucket (`gs://meshek-prod-merchants` or equivalent) is mounted at `/var/lib/meshek/merchants` inside the Cloud Run container via the native GCS FUSE volume integration
+  3. `MerchantStore` forces SQLite `journal_mode=DELETE` so FUSE incompatibilities with WAL mode cannot corrupt merchant databases
+  4. `GET /health` on the deployed service URL returns 200 or 503 (degraded) within 30s of deployment
+  5. A repeatable deploy smoke test (`tests/deploy/test_cloudrun_smoke.py`, guarded by `MESHEK_CLOUDRUN_SMOKE=1`) posts `/merchants` and `/sales` against the live URL and asserts 201/200
+  6. `docs/deploy-cloudrun.md` documents the one-shot deploy path, env var wiring, and rollback
+
+**Out of scope** (see SEED-001): Cloud SQL / Postgres migration, multi-region failover, IAM-based per-caller auth beyond `--ingress=internal`, CI/CD automation
+**UI hint**: no
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 8.1 to break down)
