@@ -53,6 +53,7 @@ emit() {
 echo "==> Building image ${IMAGE} via Cloud Build"
 emit gcloud builds submit \
   --tag "${IMAGE}" \
+  --region "${REGION}" \
   --project "${PROJECT}"
 
 echo "==> Deploying ${SERVICE} to Cloud Run (${REGION})"
