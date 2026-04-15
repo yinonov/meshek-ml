@@ -122,4 +122,4 @@ Plans:
 **UI hint**: no
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 8.1 to break down)
+- [x] TBD (run /gsd-plan-phase 8.1 to break down) (completed 2026-04-15)

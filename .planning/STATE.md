@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Merchant Order Advisor
 status: executing
-stopped_at: "Phase 8 complete (human validation deferred: Docker build + Fly.io deploy)"
-last_updated: "2026-04-14T22:18:27.871Z"
+stopped_at: Phase 8.1 complete — Cloud Run live with GCS FUSE persistence
+last_updated: "2026-04-15T12:20:52.696Z"
 last_activity: 2026-04-14 -- Phase 8 execution started
 progress:
-  total_phases: 4
-  completed_phases: 3
-  total_plans: 17
-  completed_plans: 15
-  percent: 88
+  total_phases: 5
+  completed_phases: 4
+  total_plans: 22
+  completed_plans: 20
+  percent: 91
 ---
 
 # Project State
@@ -83,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-14T22:18:27.865Z
-Stopped at: Phase 8 complete (human validation deferred: Docker build + Fly.io deploy)
-Resume file: .planning/phases/08-api-surface-deployment/08-VERIFICATION.md
+Last session: 2026-04-15T12:20:52.685Z
+Stopped at: Phase 8.1 complete — Cloud Run live with GCS FUSE persistence
+Resume file: .planning/phases/08.1-cloud-run-deployment/08.1-VERIFICATION.md
