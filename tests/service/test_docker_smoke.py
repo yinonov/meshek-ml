@@ -70,6 +70,9 @@ def _poll_health() -> int:
         try:
             with urllib.request.urlopen(_HEALTH_URL, timeout=3) as resp:
                 return resp.status
+        except urllib.error.HTTPError as exc:
+            # 503 degraded-start is a valid "alive" signal — return its code.
+            return exc.code
         except (urllib.error.URLError, ConnectionRefusedError, OSError) as exc:
             last_exc = exc
             time.sleep(_POLL_INTERVAL_S)

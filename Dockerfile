@@ -5,15 +5,19 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-# Copy dependency files first for layer caching
-COPY pyproject.toml uv.lock ./
+# Copy dependency files first for layer caching.
+# README.md is required because pyproject.toml references it as the project readme.
+COPY pyproject.toml uv.lock README.md ./
 
-# Install only service + runtime extras (no dev, no simulation, no federated, no torch)
-RUN uv sync --locked --no-dev --extra service --extra runtime
+# Install dependencies only (no project) — cached layer independent of src/ changes.
+RUN uv sync --locked --no-dev --no-install-project --extra service --extra runtime
 
 # Copy application source
 COPY src/ ./src/
 COPY configs/ ./configs/
+
+# Install the project itself now that src/ is in place.
+RUN uv sync --locked --no-dev --extra service --extra runtime
 
 # Copy model bundle directory (may contain only .gitkeep at build time;
 # degraded-start contract in create_app() handles the missing-model case at runtime)
