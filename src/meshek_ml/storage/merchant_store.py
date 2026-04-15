@@ -228,7 +228,10 @@ class MerchantStore:
             str(self._path), detect_types=sqlite3.PARSE_DECLTYPES
         )
         self._conn.execute("PRAGMA foreign_keys = ON")
-        self._conn.execute("PRAGMA journal_mode = WAL")
+        # D-10/D-11: GCS FUSE cannot honor WAL mode. Force classic rollback journal +
+        # synchronous=FULL unconditionally. Applies everywhere (local + FUSE) per D-10.
+        self._conn.execute("PRAGMA journal_mode = DELETE")
+        self._conn.execute("PRAGMA synchronous = FULL")
         _apply_migrations(self._conn)
 
     # -- context manager protocol -----------------------------------------
