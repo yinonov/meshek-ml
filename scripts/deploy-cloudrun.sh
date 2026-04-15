@@ -19,6 +19,8 @@ AR_REPO="me-west1-docker.pkg.dev/meshek-prod/meshek"
 SA_EMAIL="meshek-ml-run@meshek-prod.iam.gserviceaccount.com"
 BUCKET="meshek-prod-merchants"
 MOUNT_PATH="/var/lib/meshek/merchants"
+MODELS_BUCKET="meshek-prod-models"
+MODELS_MOUNT_PATH="/app/models"
 DRY_RUN="${DRY_RUN:-0}"
 
 while [[ $# -gt 0 ]]; do
@@ -39,6 +41,7 @@ IMAGE="${AR_REPO}/${SERVICE}:${GIT_SHA}"
 
 ENV_VARS="MESHEK_DATA_DIR=${MOUNT_PATH}"
 ENV_VARS="${ENV_VARS},MESHEK_MODEL_PATH=/app/models/lightgbm_v1.bundle"
+ENV_VARS="${ENV_VARS},MESHEK_MODELS_DIR=/app/models"
 ENV_VARS="${ENV_VARS},MESHEK_LOG_LEVEL=info"
 ENV_VARS="${ENV_VARS},MESHEK_API_HOST=0.0.0.0"
 
@@ -65,6 +68,8 @@ emit gcloud run deploy "${SERVICE}" \
   --execution-environment=gen2 \
   --add-volume "name=merchants-vol,type=cloud-storage,bucket=${BUCKET}" \
   --add-volume-mount "volume=merchants-vol,mount-path=${MOUNT_PATH}" \
+  --add-volume "name=models-vol,type=cloud-storage,bucket=${MODELS_BUCKET},readonly=true" \
+  --add-volume-mount "volume=models-vol,mount-path=${MODELS_MOUNT_PATH}" \
   --ingress internal-and-cloud-load-balancing \
   --no-allow-unauthenticated \
   --service-account "${SA_EMAIL}" \
