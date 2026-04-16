@@ -147,16 +147,16 @@ Plans:
 **Goal**: The automated Cloud Run smoke test (`test_cloudrun_smoke.py`) calls the correct API paths and asserts the correct response fields, so the "Automated Cloud Run smoke" E2E flow passes without manual verification
 **Depends on**: Phase 8.1
 **Requirements**: INFRA-03
-**Gap Closure:** Closes integration gap (Phase 8.1 → Phase 8 URL mismatch) and flow gap ("Automated Cloud Run smoke" broken) from v1.1 audit
+**Gap Closure:** Closes integration gap (Phase 8.1 -> Phase 8 URL mismatch) and flow gap ("Automated Cloud Run smoke" broken) from v1.1 audit
 **Success Criteria** (what must be TRUE):
   1. `test_cloudrun_smoke.py` calls `POST /sales` with `merchant_id` in the request body (not `/merchants/{id}/sales`)
   2. `test_cloudrun_smoke.py` calls `POST /recommend` with `merchant_id` in the request body (not `/merchants/{id}/recommend`)
   3. Response assertions check for `accepted_rows` and `skipped` fields (not `parsed`)
   4. The smoke test passes when run against the live Cloud Run service with `MESHEK_CLOUDRUN_SMOKE=1`
 **UI hint**: no
-
+**Plans:** 1 plan
 Plans:
-- [ ] TBD (run /gsd-plan-phase 10 to break down)
+- [ ] 10-01-PLAN.md — Fix smoke test paths, payloads, and response assertions
 
 ### Phase 11: Milestone Documentation Cleanup
 **Goal**: All v1.1 documentation artifacts accurately reflect the completed state — checkboxes checked, traceability current, SUMMARY frontmatter complete, and env skew documented
