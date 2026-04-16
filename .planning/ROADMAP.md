@@ -142,3 +142,34 @@ Plans:
 
 Plans:
 - [x] TBD (run /gsd-plan-phase 9 to break down) (completed 2026-04-15)
+
+### Phase 10: Fix Cloud Run Smoke Test
+**Goal**: The automated Cloud Run smoke test (`test_cloudrun_smoke.py`) calls the correct API paths and asserts the correct response fields, so the "Automated Cloud Run smoke" E2E flow passes without manual verification
+**Depends on**: Phase 8.1
+**Requirements**: INFRA-03
+**Gap Closure:** Closes integration gap (Phase 8.1 → Phase 8 URL mismatch) and flow gap ("Automated Cloud Run smoke" broken) from v1.1 audit
+**Success Criteria** (what must be TRUE):
+  1. `test_cloudrun_smoke.py` calls `POST /sales` with `merchant_id` in the request body (not `/merchants/{id}/sales`)
+  2. `test_cloudrun_smoke.py` calls `POST /recommend` with `merchant_id` in the request body (not `/merchants/{id}/recommend`)
+  3. Response assertions check for `accepted_rows` and `skipped` fields (not `parsed`)
+  4. The smoke test passes when run against the live Cloud Run service with `MESHEK_CLOUDRUN_SMOKE=1`
+**UI hint**: no
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 10 to break down)
+
+### Phase 11: Milestone Documentation Cleanup
+**Goal**: All v1.1 documentation artifacts accurately reflect the completed state — checkboxes checked, traceability current, SUMMARY frontmatter complete, and env skew documented
+**Depends on**: Phase 9
+**Requirements**: API-01, API-02, API-03, API-04, MODEL-01, MODEL-02
+**Gap Closure:** Closes tech debt from v1.1 audit (unchecked boxes, missing frontmatter, stale counts, env skew)
+**Success Criteria** (what must be TRUE):
+  1. REQUIREMENTS.md checkboxes for API-01, API-02, API-03, API-04, MODEL-01, MODEL-02 are checked
+  2. REQUIREMENTS.md traceability table shows all 17 requirements as `Complete` with coverage count `17/17`
+  3. Phase 6 SUMMARY frontmatter includes `requirements_completed` listing REC-01..04, INFRA-01
+  4. Phase 8 SUMMARY frontmatter includes `requirements_completed` listing API-01..04, INFRA-02
+  5. Python env skew (3.13 local training vs 3.12 Cloud Run) is documented in `docs/deploy-cloudrun.md` as a known caveat
+**UI hint**: no
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 11 to break down)

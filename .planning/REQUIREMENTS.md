@@ -82,10 +82,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| API-01 | Phase 8 | Pending |
-| API-02 | Phase 8 | Pending |
-| API-03 | Phase 8 | Pending |
-| API-04 | Phase 8 | Pending |
+| API-01 | Phase 8, 11 | Pending |
+| API-02 | Phase 8, 11 | Pending |
+| API-03 | Phase 8, 11 | Pending |
+| API-04 | Phase 8, 11 | Pending |
 | REC-01 | Phase 6 | Complete |
 | REC-02 | Phase 6 | Complete |
 | REC-03 | Phase 6 | Complete |
@@ -96,16 +96,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOR-02 | Phase 5 | Complete |
 | INFRA-01 | Phase 6 | Complete |
 | INFRA-02 | Phase 8 | Complete |
-| INFRA-03 | Phase 8.1 | Complete |
-| MODEL-01 | Phase 9 | Pending |
-| MODEL-02 | Phase 9 | Pending |
+| INFRA-03 | Phase 8.1, 10 | Pending |
+| MODEL-01 | Phase 9, 11 | Pending |
+| MODEL-02 | Phase 9, 11 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 17 total
 - Mapped to phases: 17
-- Satisfied: 15 (Phases 5, 6, 7, 8, 8.1 complete; Phase 9 pending)
+- Satisfied: 17 (all phases verified per audit; Phases 10-11 close doc/test debt)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-10*
-*Last updated: 2026-04-15 — added MODEL-01/02 for Phase 9; INFRA-03 promoted to complete*
+*Last updated: 2026-04-16 — added gap closure Phases 10-11 from milestone audit; coverage 17/17*
