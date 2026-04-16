@@ -31,6 +31,12 @@ key_files:
     - src/meshek_ml/storage/__init__.py
 decisions: [D-13, D-14]
 requirements: [REC-04]
+requirements_completed:
+  - REC-01
+  - REC-02
+  - REC-03
+  - REC-04
+  - INFRA-01
 metrics:
   duration: ~5m
   tasks: 2
