@@ -9,10 +9,10 @@ Requirements for Merchant Order Advisor milestone. Each maps to roadmap phases.
 
 ### API Endpoints
 
-- [ ] **API-01**: meshek app can check service health via `GET /health`
-- [ ] **API-02**: meshek app can create a new merchant with zero configuration via `POST /merchants`
-- [ ] **API-03**: meshek app can submit daily sales records for a merchant via `POST /sales`
-- [ ] **API-04**: meshek app can get per-product order recommendations for a merchant via `POST /recommend`
+- [x] **API-01**: meshek app can check service health via `GET /health`
+- [x] **API-02**: meshek app can create a new merchant with zero configuration via `POST /merchants`
+- [x] **API-03**: meshek app can submit daily sales records for a merchant via `POST /sales`
+- [x] **API-04**: meshek app can get per-product order recommendations for a merchant via `POST /recommend`
 
 ### Recommendation Engine
 
@@ -39,8 +39,8 @@ Requirements for Merchant Order Advisor milestone. Each maps to roadmap phases.
 
 ### Model Lifecycle
 
-- [ ] **MODEL-01**: Service starts in non-degraded mode (`/health` → 200) with a LightGBM bundle loaded from the configured source
-- [ ] **MODEL-02**: Model bundle is reproducibly trainable from synthetic seed data and uploadable to `gs://meshek-prod-models` via a single script
+- [x] **MODEL-01**: Service starts in non-degraded mode (`/health` → 200) with a LightGBM bundle loaded from the configured source
+- [x] **MODEL-02**: Model bundle is reproducibly trainable from synthetic seed data and uploadable to `gs://meshek-prod-models` via a single script
 
 ## v2 Requirements
 
@@ -82,10 +82,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| API-01 | Phase 8, 11 | Pending |
-| API-02 | Phase 8, 11 | Pending |
-| API-03 | Phase 8, 11 | Pending |
-| API-04 | Phase 8, 11 | Pending |
+| API-01 | Phase 8, 11 | Complete |
+| API-02 | Phase 8, 11 | Complete |
+| API-03 | Phase 8, 11 | Complete |
+| API-04 | Phase 8, 11 | Complete |
 | REC-01 | Phase 6 | Complete |
 | REC-02 | Phase 6 | Complete |
 | REC-03 | Phase 6 | Complete |
@@ -96,14 +96,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOR-02 | Phase 5 | Complete |
 | INFRA-01 | Phase 6 | Complete |
 | INFRA-02 | Phase 8 | Complete |
-| INFRA-03 | Phase 8.1, 10 | Pending |
-| MODEL-01 | Phase 9, 11 | Pending |
-| MODEL-02 | Phase 9, 11 | Pending |
+| INFRA-03 | Phase 8.1, 10 | Complete |
+| MODEL-01 | Phase 9, 11 | Complete |
+| MODEL-02 | Phase 9, 11 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 17 total
 - Mapped to phases: 17
-- Satisfied: 17 (all phases verified per audit; Phases 10-11 close doc/test debt)
+- Satisfied: 17 (all requirements verified complete)
 - Unmapped: 0
 
 ---
