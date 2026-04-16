@@ -484,3 +484,24 @@ This directly addresses threat T-9-01 from the Phase 9 threat model —
 an attacker with service code execution cannot corrupt the production model
 bundle, because the service account lacks write permissions and the mount
 is read-only.
+
+---
+
+## Known Caveats
+
+### Python Version Skew: Local Training vs Cloud Run
+
+| Environment | Python Version | Purpose |
+|-------------|---------------|---------|
+| Local / CI training | 3.13 | `scripts/train_model.py` generates LightGBM bundle |
+| Cloud Run runtime | 3.12 | `Dockerfile` serves inference via FastAPI |
+
+**Impact:** LightGBM model bundles are forward-compatible (trained on 3.13,
+served on 3.12) because the serialised format is Python-version-agnostic
+(Booster binary plus metadata with no version-specific bytecode).
+No action is required unless a future dependency introduces version-specific
+serialization protocols.
+
+**Mitigation if needed:** Pin both environments to the same Python version by
+updating the `Dockerfile` base image to `python:3.13-slim` when Cloud Run's
+base image supports it, or pin local training to 3.12 via `pyenv local 3.12`.
