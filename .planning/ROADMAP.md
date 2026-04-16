@@ -154,9 +154,9 @@ Plans:
   3. Response assertions check for `accepted_rows` and `skipped` fields (not `parsed`)
   4. The smoke test passes when run against the live Cloud Run service with `MESHEK_CLOUDRUN_SMOKE=1`
 **UI hint**: no
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 10-01-PLAN.md — Fix smoke test paths, payloads, and response assertions
+- [x] 10-01-PLAN.md — Fix smoke test paths, payloads, and response assertions
 
 ### Phase 11: Milestone Documentation Cleanup
 **Goal**: All v1.1 documentation artifacts accurately reflect the completed state — checkboxes checked, traceability current, SUMMARY frontmatter complete, and env skew documented

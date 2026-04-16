@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Merchant Order Advisor
 status: executing
 stopped_at: Phase 9 complete — Tier 3 live on Cloud Run
-last_updated: "2026-04-16T11:48:09.513Z"
-last_activity: 2026-04-16 -- Phase 10 planning complete
+last_updated: "2026-04-16T15:06:25.921Z"
+last_activity: 2026-04-16 -- Phase 10 execution started
 progress:
   total_phases: 8
   completed_phases: 5
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-07)
 
 **Core value:** Answer "how much should I order tomorrow?" for Israeli greengrocers — wrapping proven ML behind a zero-friction WhatsApp interface.
-**Current focus:** Phase 8 — api-surface-deployment
+**Current focus:** Phase 10 — fix-cloudrun-smoke-test
 
 ## Current Position
 
-Phase: 8 (api-surface-deployment) — EXECUTING
-Plan: 1 of 6
-Status: Ready to execute
-Last activity: 2026-04-16 -- Phase 10 planning complete
+Phase: 10 (fix-cloudrun-smoke-test) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 10
+Last activity: 2026-04-16 -- Phase 10 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
