@@ -5,9 +5,9 @@ them the test is skipped silently, so normal CI / `uv run pytest` runs do not hi
 the live URL.
 
 Replicates the Phase 8 Docker smoke pattern against the live Cloud Run URL:
-  1. POST /merchants {}                          → 201
-  2. POST /merchants/{mid}/sales  (Hebrew text)  → 200
-  3. POST /merchants/{mid}/recommend             → 200
+  1. POST /merchants {}                                    → 201
+  2. POST /sales {merchant_id, date, text}                 → 200
+  3. POST /recommend {merchant_id}                         → 200
 
 Notes:
   - Uses urllib.request (stdlib only — no httpx dependency added to test deps)
@@ -29,6 +29,7 @@ import urllib.error
 import urllib.request
 
 import pytest
+from datetime import date as _date
 
 pytestmark = pytest.mark.integration
 
@@ -74,17 +75,25 @@ def test_cloudrun_full_merchant_flow():
 
     # 2. Post Hebrew sales line
     status, body = _post(
-        f"/merchants/{merchant_id}/sales",
-        {"text": "20 עגבניות, 5 מלפפונים"},
+        "/sales",
+        {
+            "merchant_id": merchant_id,
+            "date": _date.today().isoformat(),
+            "text": "20 עגבניות, 5 מלפפונים",
+        },
     )
     assert status == 200, f"expected 200 OK from /sales, got {status}: {body}"
-    assert "parsed" in body, f"sales response missing 'parsed': {body}"
-    assert isinstance(body["parsed"], list) and body["parsed"], (
-        f"expected non-empty parsed list, got {body['parsed']!r}"
+    assert "accepted_rows" in body, f"sales response missing 'accepted_rows': {body}"
+    assert isinstance(body["accepted_rows"], int) and body["accepted_rows"] >= 1, (
+        f"expected accepted_rows >= 1, got {body['accepted_rows']!r}"
+    )
+    assert "skipped" in body, f"sales response missing 'skipped': {body}"
+    assert isinstance(body["skipped"], list), (
+        f"expected skipped to be a list, got {type(body['skipped']).__name__}"
     )
 
     # 3. Get recommendations
-    status, body = _post(f"/merchants/{merchant_id}/recommend", {})
+    status, body = _post("/recommend", {"merchant_id": merchant_id})
     assert status == 200, f"expected 200 OK from /recommend, got {status}: {body}"
     assert "recommendations" in body, (
         f"recommend response missing 'recommendations': {body}"
