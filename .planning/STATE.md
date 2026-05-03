@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: executing
-stopped_at: Phase 9 complete — Tier 3 live on Cloud Run
-last_updated: "2026-04-17T14:34:00.102Z"
-last_activity: 2026-04-17 — extracted v1.1 milestone learnings with meshek integration plan
+milestone: v1.2
+milestone_name: Honest Demand Contract
+status: planning
+last_updated: "2026-05-03T21:55:28.031Z"
+last_activity: 2026-05-03
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 28
-  completed_plans: 28
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,12 +24,10 @@ See: .planning/PROJECT.md (updated 2026-04-07)
 
 ## Current Position
 
-Phase: 07 (hebrew-input-parsing) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 07
-Last activity: 2026-04-17 — extracted v1.1 milestone learnings with meshek integration plan
-
-Progress: [░░░░░░░░░░] 0%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-03 — Milestone v1.2 started
 
 ## Performance Metrics
 

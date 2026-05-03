@@ -8,6 +8,22 @@ meshek-ml is an ML inference service for forecasting demand and optimizing inven
 
 Answer "how much should I order tomorrow?" for Israeli greengrocers — wrapping proven ML forecasting and optimization behind a zero-friction WhatsApp interface.
 
+## Current Milestone: v1.2 Honest Demand Contract
+
+**Goal:** Reframe the `/recommend` response to honestly reflect what the system knows (drop order qty, expose demand band + per-line tier + signals), and prepare the feature pipeline so future real merchant data — Israeli holidays, Ramadan, weather, Shabbat — can flow through.
+
+**Target features:**
+- New `/recommend` wire contract with `predicted_demand`, `demand_lower/upper`, per-line `reasoning_tier` & `confidence_score`, and `signals[]` (MM-P1 — wire freeze, synchronization point with meshek v0.8 M-P2/M-P3)
+- Exogenous feature schema: Shabbat, Israeli holidays (wired from `simulation/calendar.py`), Hijri/Ramadan/Eid, optional weather columns (MM-P2)
+- Honest tier semantics — Tier 1 and Tier 2 emit `confidence_score`, demand band, and `signals[]` (MM-P3)
+- Extend Tier 1/2 horizon — re-tune shrinkage anchor beyond `n/(n+14)` since Tier 3 stays dormant longer than originally designed (MM-P4)
+
+**Key context:**
+- Decisions locked (do not re-litigate): no M5/Favorita/Rossmann adoption, no Tier 3 retraining loop, no real-data benchmark eval, no stock awareness. Tier 3 remains dormant pending real merchant data (parallel non-engineering pilot workstream).
+- MM-P1 lands first and freezes the wire; `@meshek/ml-client` types update via PR in the meshek repo. MM-P2/P3/P4 proceed in parallel afterward.
+- Sibling milestone in meshek repo: `meshek v0.8 — Honest demand`. MM-P1 is the explicit cross-repo sync point — meshek M-P2/M-P3 are blocked on it.
+- New dependency in MM-P2: Hijri calendar package (`convertdate` / `pyluach` / `hijri-converter`).
+
 ## Current State
 
 **Shipped:** v1.1 Merchant Order Advisor (2026-04-16)
@@ -63,7 +79,7 @@ meshek-ml is a **backend ML service only**. The merchant-facing app (dashboard, 
 
 ### Active
 
-(No active requirements — define in next milestone via `/gsd-new-milestone`)
+- v1.2 — Honest Demand Contract (see `.planning/REQUIREMENTS.md` for REQ-IDs)
 
 ### Out of Scope
 
@@ -134,4 +150,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-16 after v1.1 milestone complete*
+*Last updated: 2026-05-04 — v1.2 Honest Demand Contract milestone started*
