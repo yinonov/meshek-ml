@@ -78,35 +78,35 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WIRE-01 | TBD | Pending |
-| WIRE-02 | TBD | Pending |
-| WIRE-03 | TBD | Pending |
-| WIRE-04 | TBD | Pending |
-| WIRE-05 | TBD | Pending |
-| WIRE-06 | TBD | Pending |
-| WIRE-07 | TBD | Pending |
-| FEAT-01 | TBD | Pending |
-| FEAT-02 | TBD | Pending |
-| FEAT-03 | TBD | Pending |
-| FEAT-04 | TBD | Pending |
-| FEAT-05 | TBD | Pending |
-| FEAT-06 | TBD | Pending |
-| FEAT-07 | TBD | Pending |
-| FEAT-08 | TBD | Pending |
-| TIER-01 | TBD | Pending |
-| TIER-02 | TBD | Pending |
-| TIER-03 | TBD | Pending |
-| TIER-04 | TBD | Pending |
-| TIER-05 | TBD | Pending |
-| HORIZON-01 | TBD | Pending |
-| HORIZON-02 | TBD | Pending |
-| HORIZON-03 | TBD | Pending |
+| WIRE-01 | Phase 12 | Pending |
+| WIRE-02 | Phase 12 | Pending |
+| WIRE-03 | Phase 12 | Pending |
+| WIRE-04 | Phase 12 | Pending |
+| WIRE-05 | Phase 12 | Pending |
+| WIRE-06 | Phase 12 | Pending |
+| WIRE-07 | Phase 12 | Pending |
+| FEAT-01 | Phase 13 | Pending |
+| FEAT-02 | Phase 13 | Pending |
+| FEAT-03 | Phase 13 | Pending |
+| FEAT-04 | Phase 13 | Pending |
+| FEAT-05 | Phase 13 | Pending |
+| FEAT-06 | Phase 13 | Pending |
+| FEAT-07 | Phase 13 | Pending |
+| FEAT-08 | Phase 13 | Pending |
+| TIER-01 | Phase 14 | Pending |
+| TIER-02 | Phase 14 | Pending |
+| TIER-03 | Phase 14 | Pending |
+| TIER-04 | Phase 14 | Pending |
+| TIER-05 | Phase 14 | Pending |
+| HORIZON-01 | Phase 15 | Pending |
+| HORIZON-02 | Phase 15 | Pending |
+| HORIZON-03 | Phase 15 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 23 total
-- Mapped to phases: 0 (filled by `gsd-roadmapper`)
-- Unmapped: 23 ⚠️
+- Mapped to phases: 23 ✓
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-04*
-*Last updated: 2026-05-04 — initial definition for milestone v1.2*
+*Last updated: 2026-05-04 — traceability filled by `gsd-roadmapper` (all 23 REQ-IDs mapped to phases 12–15)*
