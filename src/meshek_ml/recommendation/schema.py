@@ -48,7 +48,7 @@ class ProductRecommendation(BaseModel):
     signals: list[Signal] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def band_contains_estimate(self) -> "ProductRecommendation":
+    def band_contains_estimate(self) -> ProductRecommendation:
         """Ensure demand_lower <= predicted_demand <= demand_upper (WIRE-01)."""
         if not (self.demand_lower <= self.predicted_demand <= self.demand_upper):
             raise ValueError(

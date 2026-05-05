@@ -21,7 +21,7 @@ def test_reasoning_tier_is_ml_forecast(
         residual_std=trained_model_bundle["residual_std"],
         feature_cols=trained_model_bundle["feature_cols"],
     )
-    assert resp.reasoning_tier == "ml_forecast"
+    assert resp.recommendations[0].reasoning_tier == "ml_forecast"
     assert resp.merchant_id == "tier3a"
 
 
@@ -37,11 +37,11 @@ def test_confidence_bounds(trained_model_bundle, merchant_store_factory):
         residual_std=trained_model_bundle["residual_std"],
         feature_cols=trained_model_bundle["feature_cols"],
     )
-    assert 0.6 <= resp.confidence_score <= 0.95
+    assert 0.6 <= resp.recommendations[0].confidence_score <= 0.95
 
 
 @pytest.mark.integration
-def test_quantities_non_negative(trained_model_bundle, merchant_store_factory):
+def test_predicted_demand_non_negative(trained_model_bundle, merchant_store_factory):
     merchant_store_factory("tier3c", days=30)
     with MerchantStore("tier3c", must_exist=True) as store:
         sales = store.read_sales()
@@ -53,7 +53,7 @@ def test_quantities_non_negative(trained_model_bundle, merchant_store_factory):
         feature_cols=trained_model_bundle["feature_cols"],
     )
     for rec in resp.recommendations:
-        assert rec.quantity >= 0
+        assert rec.predicted_demand >= 0
 
 
 @pytest.mark.integration
@@ -96,4 +96,4 @@ def test_inference_never_reads_disk(
             residual_std=trained_model_bundle["residual_std"],
             feature_cols=trained_model_bundle["feature_cols"],
         )
-        assert resp.reasoning_tier == "ml_forecast"
+        assert resp.recommendations[0].reasoning_tier == "ml_forecast"
