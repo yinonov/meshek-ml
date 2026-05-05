@@ -9,7 +9,7 @@ def test_health_with_model(app_client):
     body = response.json()
     assert body["status"] == "ok"
     assert body["model_loaded"] is True
-    assert body["version"] == "1.1.0"
+    assert body["version"] == "1.2.0"
 
 
 def test_health_degraded(no_model_client):
@@ -19,4 +19,4 @@ def test_health_degraded(no_model_client):
     body = response.json()
     assert body["status"] == "ok"
     assert body["model_loaded"] is False
-    assert body["version"] == "1.1.0"
+    assert body["version"] == "1.2.0"
