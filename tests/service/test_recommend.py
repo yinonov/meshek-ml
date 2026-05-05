@@ -56,9 +56,9 @@ def test_recommend_tier1(app_client, data_dir):
     resp = app_client.post("/recommend", json={"merchant_id": "rec_t1"})
     assert resp.status_code == 200
     body = resp.json()
-    assert body["reasoning_tier"] == "category_default"
+    assert body["recommendations"][0]["reasoning_tier"] == "category_default"
     assert body["merchant_id"] == "rec_t1"
-    assert "confidence_score" in body
+    assert "confidence_score" in body["recommendations"][0]
     assert "recommendations" in body
 
 
@@ -71,8 +71,8 @@ def test_recommend_tier2(app_client, data_dir):
     resp = app_client.post("/recommend", json={"merchant_id": "rec_t2"})
     assert resp.status_code == 200
     body = resp.json()
-    assert body["reasoning_tier"] == "pooled_prior"
-    assert 0.3 <= body["confidence_score"] <= 0.6
+    assert body["recommendations"][0]["reasoning_tier"] == "pooled_prior"
+    assert 0.3 <= body["recommendations"][0]["confidence_score"] <= 0.6
 
 
 def test_recommend_tier3(app_client, data_dir):
@@ -81,8 +81,8 @@ def test_recommend_tier3(app_client, data_dir):
     resp = app_client.post("/recommend", json={"merchant_id": "rec_t3"})
     assert resp.status_code == 200
     body = resp.json()
-    assert body["reasoning_tier"] == "ml_forecast"
-    assert 0.6 <= body["confidence_score"] <= 0.95
+    assert body["recommendations"][0]["reasoning_tier"] == "ml_forecast"
+    assert 0.6 <= body["recommendations"][0]["confidence_score"] <= 0.95
 
 
 def test_engine_is_cached_on_app_state(app_client):
@@ -128,7 +128,7 @@ def test_tier1_in_degraded_mode(no_model_client, data_dir):
     resp = no_model_client.post("/recommend", json={"merchant_id": "deg_t1"})
     assert resp.status_code == 200
     body = resp.json()
-    assert body["reasoning_tier"] == "category_default"
+    assert body["recommendations"][0]["reasoning_tier"] == "category_default"
 
 
 def test_sales_uses_app_state_catalog(app_client, data_dir):
@@ -151,3 +151,59 @@ def test_sales_uses_app_state_catalog(app_client, data_dir):
     assert resp.status_code == 200
     body = resp.json()
     assert body["accepted_rows"] >= 1
+
+
+# ---------------------------------------------------------------------------
+# Contract tests (WIRE-06 OpenAPI + WIRE-01..WIRE-06 key-set pin)
+# ---------------------------------------------------------------------------
+
+
+def test_openapi_wire_contract(app_client):
+    """GET /openapi.json reflects new wire shape; legacy quantity absent (WIRE-06)."""
+    resp = app_client.get("/openapi.json")
+    assert resp.status_code == 200
+    schema = resp.json()
+    pr_props = schema["components"]["schemas"]["ProductRecommendation"]["properties"]
+    for field in ("predicted_demand", "demand_lower", "demand_upper",
+                  "reasoning_tier", "confidence_score", "signals"):
+        assert field in pr_props, f"OpenAPI missing field: {field}"
+    assert "quantity" not in pr_props, "quantity must be absent from OpenAPI schema"
+    # Response envelope must not have response-level tier/score
+    rr_props = schema["components"]["schemas"]["RecommendationResponse"]["properties"]
+    assert "reasoning_tier" not in rr_props
+    assert "confidence_score" not in rr_props
+
+
+def test_tier1_contract_key_set(app_client, data_dir):
+    """Full key-set + type contract test for Tier 1 response (WIRE-01 to WIRE-06)."""
+    _seed_merchant(data_dir, "contract_t1", days=0)
+    resp = app_client.post("/recommend", json={"merchant_id": "contract_t1"})
+    assert resp.status_code == 200
+    body = resp.json()
+
+    # Response envelope
+    assert set(body.keys()) >= {"merchant_id", "recommendations", "generated_at"}
+    assert "reasoning_tier" not in body, "response-level reasoning_tier must be absent"
+    assert "confidence_score" not in body, "response-level confidence_score must be absent"
+    assert "quantity" not in body
+
+    # Per-line fields
+    assert len(body["recommendations"]) >= 1
+    line = body["recommendations"][0]
+    assert isinstance(line["product_id"], str)
+    assert isinstance(line["unit"], str)
+    assert isinstance(line["predicted_demand"], (int, float))
+    assert isinstance(line["demand_lower"], (int, float))
+    assert isinstance(line["demand_upper"], (int, float))
+    assert line["reasoning_tier"] == "category_default"
+    assert 0.0 <= line["confidence_score"] <= 1.0
+    assert "quantity" not in line
+
+    # Signals
+    assert isinstance(line["signals"], list)
+    assert len(line["signals"]) >= 1
+    sig = line["signals"][0]
+    assert isinstance(sig["name"], str)
+    assert isinstance(sig["contribution"], (int, float))
+    assert isinstance(sig["copy_key"], str)
+    assert sig["copy_key"].startswith("signal.")
