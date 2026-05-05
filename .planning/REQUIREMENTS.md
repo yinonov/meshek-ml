@@ -11,12 +11,12 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Wire Contract (MM-P1)
 
-- [ ] **WIRE-01**: `/recommend` response replaces top-level `recommendations[].quantity` with `predicted_demand`, `demand_lower`, and `demand_upper` (point estimate + band) per line.
-- [ ] **WIRE-02**: Each recommendation line carries `reasoning_tier` as a stable enum: `"category_default"` | `"pooled_prior"` | `"ml_forecast"` (per-line, not response-level).
-- [ ] **WIRE-03**: Each recommendation line carries `confidence_score` in `[0, 1]` (per-line, not response-level).
-- [ ] **WIRE-04**: Each recommendation line carries `signals[]` — array of `{ name: string, contribution: number, copy_key: string }` where `name` is a stable enum, `contribution` is signed (units decided in MM-P1: demand units OR normalized), and `copy_key` is a stable i18n key owned by meshek.
-- [ ] **WIRE-05**: The newsvendor order-qty layer is removed from the public response. If retained anywhere, it is an internal computation no longer exposed.
-- [ ] **WIRE-06**: `service/schemas.py` `RecommendationResponse` Pydantic model and OpenAPI documentation reflect the new shape; legacy `quantity` field is gone.
+- [x] **WIRE-01**: `/recommend` response replaces top-level `recommendations[].quantity` with `predicted_demand`, `demand_lower`, and `demand_upper` (point estimate + band) per line.
+- [x] **WIRE-02**: Each recommendation line carries `reasoning_tier` as a stable enum: `"category_default"` | `"pooled_prior"` | `"ml_forecast"` (per-line, not response-level).
+- [x] **WIRE-03**: Each recommendation line carries `confidence_score` in `[0, 1]` (per-line, not response-level).
+- [x] **WIRE-04**: Each recommendation line carries `signals[]` — array of `{ name: string, contribution: number, copy_key: string }` where `name` is a stable enum, `contribution` is signed (units decided in MM-P1: demand units OR normalized), and `copy_key` is a stable i18n key owned by meshek.
+- [x] **WIRE-05**: The newsvendor order-qty layer is removed from the public response. If retained anywhere, it is an internal computation no longer exposed.
+- [x] **WIRE-06**: `service/schemas.py` `RecommendationResponse` Pydantic model and OpenAPI documentation reflect the new shape; legacy `quantity` field is gone.
 - [ ] **WIRE-07**: `@meshek/ml-client` TypeScript types in the meshek repo are updated via a coordinated PR before MM-P1 is merged here (cross-repo wire freeze).
 
 ### Exogenous Feature Schema (MM-P2)
@@ -78,12 +78,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WIRE-01 | Phase 12 | Pending |
-| WIRE-02 | Phase 12 | Pending |
-| WIRE-03 | Phase 12 | Pending |
-| WIRE-04 | Phase 12 | Pending |
-| WIRE-05 | Phase 12 | Pending |
-| WIRE-06 | Phase 12 | Pending |
+| WIRE-01 | Phase 12 | Complete |
+| WIRE-02 | Phase 12 | Complete |
+| WIRE-03 | Phase 12 | Complete |
+| WIRE-04 | Phase 12 | Complete |
+| WIRE-05 | Phase 12 | Complete |
+| WIRE-06 | Phase 12 | Complete |
 | WIRE-07 | Phase 12 | Pending |
 | FEAT-01 | Phase 13 | Pending |
 | FEAT-02 | Phase 13 | Pending |
