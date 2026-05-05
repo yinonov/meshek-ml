@@ -62,7 +62,10 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
   4. `@meshek/ml-client` TypeScript types in the meshek repo are updated via a coordinated PR that lands before MM-P1 is merged here — verified by the meshek repo consuming the new shape without runtime errors.
   5. Existing `/recommend` integration tests are updated and pass against the new shape; no test still asserts a top-level `quantity`.
 
-**Plans**: TBD
+**Plans**: 3 plans
+  - [ ] 12-01-schema-and-tiers-PLAN.md — Rewrite Pydantic schema + all three tier constructors; remove newsvendor from response path; bump SERVICE_VERSION; migrate unit tests inline
+  - [ ] 12-02-service-and-openapi-PLAN.md — Migrate HTTP integration tests; add OpenAPI contract test + Tier-1 full-key-set contract test; full pytest suite gate
+  - [ ] 12-03-cross-repo-coordination-PLAN.md — Cross-repo handoff doc + manual gate for the meshek-side TypeScript PR pair (WIRE-07)
 
 **Cross-phase notes**:
   - **Wire freeze**: This is the only phase in v1.2 that is on a hard sequencing constraint. It MUST land first because it freezes the contract that meshek v0.8 M-P2 and M-P3 consume.
@@ -149,7 +152,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 | 9. Model Bundle Pipeline | v1.1 | 4/4 | Complete | 2026-04-15 |
 | 10. Fix Cloud Run Smoke Test | v1.1 | 1/1 | Complete | 2026-04-16 |
 | 11. Milestone Documentation Cleanup | v1.1 | 1/1 | Complete | 2026-04-16 |
-| 12. Wire Contract | v1.2 | 0/? | Not started | — |
+| 12. Wire Contract | v1.2 | 0/3 | Planning | — |
 | 13. Exogenous Features | v1.2 | 0/? | Not started | — |
 | 14. Honest Tier Semantics | v1.2 | 0/? | Not started | — |
 | 15. Tier Horizon Extension | v1.2 | 0/? | Not started | — |
