@@ -87,6 +87,13 @@ def test_product_recommendation_fields():
     with pytest.raises(ValidationError):
         ProductRecommendation(**_valid_product_rec_kwargs(demand_lower=9.0, demand_upper=8.0))
 
+    # Band invariant: upper < predicted must also raise (WR-04 — covers the
+    # other violation direction: lower is valid but upper is below predicted)
+    with pytest.raises(ValidationError):
+        ProductRecommendation(**_valid_product_rec_kwargs(
+            predicted_demand=10.0, demand_lower=7.0, demand_upper=9.0
+        ))
+
     # Signals list must have at least one entry
     with pytest.raises(ValidationError):
         ProductRecommendation(**_valid_product_rec_kwargs(signals=[]))
