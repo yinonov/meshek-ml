@@ -119,5 +119,8 @@ def test_response_contract_rec04(
     engine = _make_engine(category_defaults_cfg)
     for mid in ("m_zero", "m_seven"):
         resp = engine.recommend(mid)
-        assert resp.recommendations[0].reasoning_tier is not None
-        assert resp.recommendations[0].confidence_score is not None
+        # WR-05: assert actual contract properties, not just non-None
+        assert resp.recommendations[0].reasoning_tier in (
+            "category_default", "pooled_prior", "ml_forecast"
+        )
+        assert 0.0 <= resp.recommendations[0].confidence_score <= 1.0
