@@ -75,7 +75,8 @@ def tier_2_pooled_priors(
     )
     shrink = n_days / (n_days + 14)  # D-05
     # D-06: linear 0.3 → 0.6 across n_days ∈ [1, 13] — computed before loop (Pitfall 8)
-    confidence = 0.3 + (0.6 - 0.3) * ((max(1, n_days) - 1) / 12)
+    # Clamped to [0.3, 0.6] so direct calls with n_days > 13 stay in range (WR-02).
+    confidence = min(0.6, 0.3 + (0.6 - 0.3) * ((max(1, n_days) - 1) / 12))
     recs: list[ProductRecommendation] = []
     for product, pooled_mean in pooled_means.items():
         own_mean = own_means.get(product, pooled_mean)
@@ -154,8 +155,8 @@ def tier_3_ml_forecast(
     confidence = max(0.6, min(0.95, raw))
 
     recs: list[ProductRecommendation] = []
-    for product, mean_demand in zip(last_rows["product"], mu, strict=False):
-        mu_f = float(mean_demand)
+    for product, mean_demand in zip(last_rows["product"], mu, strict=True):
+        mu_f = max(0.0, float(mean_demand))   # clamp negative model output (CR-01)
         recs.append(
             ProductRecommendation(
                 product_id=str(product),
