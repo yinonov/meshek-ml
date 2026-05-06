@@ -20,9 +20,11 @@ class Signal(BaseModel):
 
     ``name`` is an open string in v1.2; Phase 14 tightens it to a Literal.
     Documented stable values today: ``"category_default"``, ``"pooled_prior"``,
-    ``"ml_forecast"``. ``contribution`` is signed and in raw demand units
-    (kg) — same scale as ``predicted_demand``. ``copy_key`` follows the
-    ``"signal.<snake_case_name>"`` convention; meshek owns translation.
+    ``"ml_forecast"``. ``contribution`` is a relative weight (dimensionless,
+    between 0 and 1) — not a demand quantity in kg. Phase 14 will enforce
+    sum-to-1 across all signals for a recommendation line. ``copy_key``
+    follows the ``"signal.<snake_case_name>"`` convention; meshek owns
+    translation.
     """
 
     name: str
