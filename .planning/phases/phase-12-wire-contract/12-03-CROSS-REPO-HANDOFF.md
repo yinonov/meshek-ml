@@ -94,7 +94,7 @@ Rationale: meshek's `@meshek/ml-client` runtime guard would crash against the ne
 ## PR URLs (filled by user as PRs go live)
 
 - **meshek PR (TypeScript types + guard + guard test):** `<URL — fill in when opened>`
-- **meshek-ml PR (this phase):** `<URL — fill in when opened>`
+- **meshek-ml PR (this phase):** https://github.com/yinonov/meshek-ml/pull/1 (DRAFT — gated on meshek PR merge)
 - **meshek PR merged at:** `<commit SHA or merge timestamp — fill in after merge>`
 - **meshek-ml PR merged at:** `<commit SHA or merge timestamp — fill in after merge>`
 
