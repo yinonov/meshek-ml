@@ -6,12 +6,12 @@ from meshek_ml.recommendation.tiers import tier_1_category_defaults
 
 def test_returns_category_default_tier(category_defaults_cfg):
     resp = tier_1_category_defaults("shop_a", category_defaults_cfg)
-    assert resp.reasoning_tier == "category_default"
+    assert resp.recommendations[0].reasoning_tier == "category_default"
 
 
 def test_confidence_is_0_2(category_defaults_cfg):
     resp = tier_1_category_defaults("shop_a", category_defaults_cfg)
-    assert resp.confidence_score == 0.2
+    assert resp.recommendations[0].confidence_score == 0.2
 
 
 def test_quantities_match_yaml(category_defaults_cfg):
@@ -19,8 +19,10 @@ def test_quantities_match_yaml(category_defaults_cfg):
     by_id = {r.product_id: r for r in resp.recommendations}
     for p in category_defaults_cfg.products:
         rec = by_id[p.product_id]
-        assert rec.quantity == p.default_quantity
+        assert rec.predicted_demand == p.default_quantity
         assert rec.unit == p.unit
+        assert len(rec.signals) == 1
+        assert rec.signals[0].copy_key == "signal.tier_1_default"
 
 
 def test_merchant_id_propagated(category_defaults_cfg):

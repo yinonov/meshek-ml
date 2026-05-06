@@ -1,32 +1,72 @@
-"""Pydantic schemas for the recommendation service (D-13, D-14).
+"""Pydantic schemas for the recommendation service (Phase 12 wire contract).
 
-These are the locked response contracts that Phase 6 Waves 2-4 and
-Phase 8's HTTP layer import against. Do not widen the ``reasoning_tier``
-literal or the ``confidence_score`` bounds without a context update.
+The locked v1.2 response contract: per-line ``reasoning_tier``,
+per-line ``confidence_score``, demand point estimate + band, and
+``signals[]`` for explanation. ``quantity`` removed (WIRE-01/WIRE-05).
+Phase 14 will tighten ``Signal.name`` to a Literal once the enum locks.
 """
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 ReasoningTier = Literal["category_default", "pooled_prior", "ml_forecast"]
 
 
+class Signal(BaseModel):
+    """A single explanation signal for a recommendation line (WIRE-04).
+
+    ``name`` is an open string in v1.2; Phase 14 tightens it to a Literal.
+    Documented stable values today: ``"category_default"``, ``"pooled_prior"``,
+    ``"ml_forecast"``. ``contribution`` is a relative weight (dimensionless,
+    between 0 and 1) — not a demand quantity in kg. Phase 14 will enforce
+    sum-to-1 across all signals for a recommendation line. ``copy_key``
+    follows the ``"signal.<snake_case_name>"`` convention; meshek owns
+    translation.
+    """
+
+    name: str
+    contribution: float
+    copy_key: str
+
+
 class ProductRecommendation(BaseModel):
-    """A single per-product order recommendation (D-14)."""
+    """A single per-product recommendation line (WIRE-01..WIRE-04).
+
+    ``demand_lower <= predicted_demand <= demand_upper`` is enforced via
+    ``model_validator(mode="after")``. The placeholder case lower==upper==
+    predicted satisfies the invariant trivially (Phase 14 fills variance).
+    """
 
     product_id: str
-    quantity: float
     unit: str
+    predicted_demand: float
+    demand_lower: float
+    demand_upper: float
+    reasoning_tier: ReasoningTier
+    confidence_score: float = Field(ge=0.0, le=1.0)
+    signals: list[Signal] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def band_contains_estimate(self) -> ProductRecommendation:
+        """Ensure demand_lower <= predicted_demand <= demand_upper (WIRE-01)."""
+        if not (self.demand_lower <= self.predicted_demand <= self.demand_upper):
+            raise ValueError(
+                "demand_lower <= predicted_demand <= demand_upper required"
+            )
+        return self
 
 
 class RecommendationResponse(BaseModel):
-    """Full response envelope for one merchant order recommendation (D-13)."""
+    """Full response envelope for one merchant recommendation (WIRE-06).
+
+    Note: response-level ``reasoning_tier`` and ``confidence_score`` are
+    intentionally absent — they are now per-line on
+    ``ProductRecommendation`` (WIRE-02/WIRE-03).
+    """
 
     merchant_id: str
     recommendations: list[ProductRecommendation]
-    reasoning_tier: ReasoningTier
-    confidence_score: float = Field(ge=0.0, le=1.0)
     generated_at: datetime

@@ -36,7 +36,7 @@ def test_reasoning_tier():
     resp = tier_2_pooled_priors(
         "M", _own_df("M", "tomato", 20.0), pooled, n_days=7
     )
-    assert resp.reasoning_tier == "pooled_prior"
+    assert resp.recommendations[0].reasoning_tier == "pooled_prior"
 
 
 def test_confidence_bounds():
@@ -44,15 +44,15 @@ def test_confidence_bounds():
     df = _own_df("M", "tomato", 20.0)
     r1 = tier_2_pooled_priors("M", df, pooled, n_days=1)
     r13 = tier_2_pooled_priors("M", df, pooled, n_days=13)
-    assert r1.confidence_score == pytest.approx(0.3, abs=1e-6)
-    assert r13.confidence_score == pytest.approx(0.6, abs=1e-6)
+    assert r1.recommendations[0].confidence_score == pytest.approx(0.3, abs=1e-6)
+    assert r13.recommendations[0].confidence_score == pytest.approx(0.6, abs=1e-6)
 
 
 def test_confidence_monotonic():
     pooled = _StubPooled({"tomato": 10.0})
     df = _own_df("M", "tomato", 20.0)
     scores = [
-        tier_2_pooled_priors("M", df, pooled, n_days=n).confidence_score
+        tier_2_pooled_priors("M", df, pooled, n_days=n).recommendations[0].confidence_score
         for n in range(1, 14)
     ]
     assert scores == sorted(scores)
@@ -66,7 +66,7 @@ def test_shrinkage_weights():
     resp = tier_2_pooled_priors("M", df, pooled, n_days=7)
     rec = resp.recommendations[0]
     assert rec.product_id == "tomato"
-    assert rec.quantity == pytest.approx(round(40 / 3, 2), abs=1e-6)
+    assert rec.predicted_demand == pytest.approx(round(40 / 3, 4), abs=1e-6)
 
 
 def test_uses_pooled_store(data_root, merchant_store_factory):
@@ -86,7 +86,7 @@ def test_uses_pooled_store(data_root, merchant_store_factory):
     resp = tier_2_pooled_priors("M", with_m_sales, pooled, n_days=7)
     # pooled excluding M = 15; shrink = 7/21 = 1/3; q = 1/3*30 + 2/3*15 = 20.0
     assert len(resp.recommendations) == 1
-    assert resp.recommendations[0].quantity == pytest.approx(20.0, abs=1e-2)
+    assert resp.recommendations[0].predicted_demand == pytest.approx(20.0, abs=1e-2)
 
 
 def test_merchant_id_propagated():

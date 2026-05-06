@@ -1,36 +1,33 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
+milestone: v1.2
+milestone_name: Honest Demand Contract
 status: executing
-stopped_at: Phase 9 complete — Tier 3 live on Cloud Run
-last_updated: "2026-04-17T14:34:00.102Z"
-last_activity: 2026-04-17 — extracted v1.1 milestone learnings with meshek integration plan
+stopped_at: ROADMAP.md drafted for v1.2 — 4 phases (12–15), 23/23 requirements mapped
+last_updated: "2026-05-05T19:47:00.660Z"
+last_activity: 2026-05-05
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 28
-  completed_plans: 28
-  percent: 100
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-07)
+See: .planning/PROJECT.md (updated 2026-05-04)
 
 **Core value:** Answer "how much should I order tomorrow?" for Israeli greengrocers — wrapping proven ML behind a zero-friction WhatsApp interface.
-**Current focus:** Phase 07 — hebrew-input-parsing
+**Current focus:** Phase 12 — wire-contract
 
 ## Current Position
 
-Phase: 07 (hebrew-input-parsing) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 07
-Last activity: 2026-04-17 — extracted v1.1 milestone learnings with meshek integration plan
-
-Progress: [░░░░░░░░░░] 0%
+Phase: 12 (wire-contract) — EXECUTING
+Plan: 3 of 3
+Status: Ready to execute
+Last activity: 2026-05-05
 
 ## Performance Metrics
 
@@ -72,6 +69,9 @@ Recent decisions affecting current work:
 - Use plain `def` (not `async def`) for LightGBM inference — CPU-bound calls must not block the event loop via fake async.
 - [Phase 06]: Tier 2 shrinkage locked at n/(n+14) with confidence linear 0.3->0.6 over 1..13 days
 - [Phase 06-recommendation-engine]: D-01 locked: Tier 3 threshold is 14 distinct sale days
+- [v1.2 planning]: Phase 12 (wire contract) lands first — cross-repo sync with meshek v0.8 (M-P2/M-P3 blocked until merged); Phases 13/14/15 parallelize after.
+- [v1.2 planning]: Phases 14 and 15 share `recommendation/tiers.py` Tier 2 surface — schedule sequentially (Phase 15 first preferred) if both go in flight.
+- [v1.2 LOCKED — do not re-litigate]: No real-dataset adoption (M5/Favorita/Rossmann), no Tier 3 retraining, no benchmark eval, no stock awareness.
 
 ### Pending Todos
 
@@ -79,10 +79,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- Three-tier cold-start thresholds (14 days for Tier 3) are hardcoded defaults — may need tuning once real merchant data arrives.
+- Three-tier cold-start thresholds (14 days for Tier 3) are hardcoded defaults — Phase 15 re-tunes the Tier 2 anchor; Tier 3 threshold remains in place pending real merchant data.
+- Hijri-calendar dependency (`convertdate` / `pyluach` / `hijri-converter`) selection is deferred to Phase 13 planning — choice locked then.
 
 ## Session Continuity
 
-Last session: 2026-04-15T17:03:46.177Z
-Stopped at: Phase 9 complete — Tier 3 live on Cloud Run
-Resume file: .planning/phases/09-model-bundle-pipeline/09-VERIFICATION.md
+Last session: 2026-05-05T19:47:00.654Z
+Stopped at: ROADMAP.md drafted for v1.2 — 4 phases (12–15), 23/23 requirements mapped
+Resume file: None

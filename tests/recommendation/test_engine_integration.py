@@ -36,13 +36,13 @@ def test_three_tiers_single_run(
     r2 = engine.recommend("m_seven")
     r3 = engine.recommend("m_thirty")
 
-    assert r1.reasoning_tier == "category_default"
-    assert r1.confidence_score == 0.2
-    assert r2.reasoning_tier == "pooled_prior"
-    assert 0.3 <= r2.confidence_score <= 0.6
-    assert r3.reasoning_tier == "ml_forecast"
-    assert 0.6 <= r3.confidence_score <= 0.95
+    assert r1.recommendations[0].reasoning_tier == "category_default"
+    assert r1.recommendations[0].confidence_score == 0.2
+    assert r2.recommendations[0].reasoning_tier == "pooled_prior"
+    assert 0.3 <= r2.recommendations[0].confidence_score <= 0.6
+    assert r3.recommendations[0].reasoning_tier == "ml_forecast"
+    assert 0.6 <= r3.recommendations[0].confidence_score <= 0.95
 
     for resp in (r1, r2, r3):
-        assert resp.reasoning_tier is not None
-        assert resp.confidence_score is not None  # REC-04
+        assert resp.recommendations[0].reasoning_tier is not None
+        assert resp.recommendations[0].confidence_score is not None  # REC-04
